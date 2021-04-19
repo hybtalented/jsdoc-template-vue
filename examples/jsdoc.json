@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/jsdoc-1.0.0.json",
+  "plugins": ["plugins/typescript", "plugins/markdown", "plugins/summarize"],
+  "source": {
+    "include": ["examples/types"],
+    "includePattern": ".+\\.ts(doc|x)?$"
+  },
+  "opts": {
+    "encoding": "utf8",
+    "recurse": true,
+    "package": "package.json",
+    "readme": "README.md",
+    "destination": "docker/docs",
+    "template": "."
+  },
+  "sourceType": "module",
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": true,
+      "staticFiles": {
+        "include": ["examples/static/"]
+      }
+    },
+    "css": [
+      "styles/custom.css"
+    ],
+    "name": "新c端开发文档",
+    "footerText": "新c端开发文档， 文档撰写：1. <a href=\"mailto:hybtalentd@163.com\">何友表</a>",
+    "tabNames": {
+      "api": "接口",
+      "tutorials": "教程"
+    }
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "recurseDepth": 10
+}

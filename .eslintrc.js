@@ -2,9 +2,6 @@
 
 module.exports = {
   root: true,
-  parserOptions: {
-    parser: 'babel-eslint'
-  },
   globals: {
     req: 'readonly',
     api: 'readonly',
@@ -16,6 +13,9 @@ module.exports = {
     EC_ERROR: 'readonly',
     EC_FATAL: 'readonly',
     SaveTransResultTop: 'readonly'
+  },
+  parserOptions: {
+    ecmaVersion: 6
   },
   env: {
     browser: true
