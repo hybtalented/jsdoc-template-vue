@@ -3,9 +3,14 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
-export default function createRouter(routes) {
-    return new Router({
-        mode: 'hash',
-        routes
-    })
+export default function createRouter() {
+  return new Router({
+    mode: 'hash',
+    routes: [
+      {
+        path: '/global'
+      },
+      { path: '/template' }
+    ]
+  });
 }
