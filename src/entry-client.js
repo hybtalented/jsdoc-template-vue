@@ -1,1 +1,3 @@
-import './components';
+import templateComponent from './components';
+
+export default templateComponent;
