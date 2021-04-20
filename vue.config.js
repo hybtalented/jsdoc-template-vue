@@ -16,7 +16,6 @@ const vueConfig = {
       config.output.libraryTarget('commonjs2');
       config.plugin('ssr').use(new VueSSRServerPlugin());
       config.optimization.splitChunks(false);
-      config.target('node');
       config.module.rule('js').uses.delete('babel-loader');
       const index_entry = config.entry('index');
       index_entry.clear();
