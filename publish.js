@@ -19,7 +19,6 @@ var hasOwnProp = Object.prototype.hasOwnProperty;
 
 var data;
 var view;
-var tutorialsName;
 
 var outdir = path.normalize(env.opts.destination);
 
@@ -37,8 +36,6 @@ env.conf.templates.tabNames = _.extend(
   },
   env.conf.templates.tabNames
 );
-
-tutorialsName = env.conf.templates.tabNames.tutorials;
 
 // Set default useCollapsibles true
 env.conf.templates.useCollapsibles = env.conf.templates.useCollapsibles !== false;
@@ -180,7 +177,7 @@ function addSignatureReturns(f) {
   // if there are both nullable and non-nullable return types), but let's assume that most people
   // who use multiple @return tags aren't using Closure Compiler type annotations, and vice-versa.
   if (source) {
-    source.forEach(function(item) {
+    source.forEach(item => {
       helper.getAttribs(item).forEach(function(attrib) {
         if (attribs.indexOf(attrib) === -1) {
           attribs.push(attrib);
@@ -215,7 +212,7 @@ function addAttribs(f) {
 }
 
 function shortenPaths(files, commonPrefix) {
-  Object.keys(files).forEach(function(file) {
+  Object.keys(files).forEach(file => {
     files[file].shortened = files[file].resolved
       .replace(commonPrefix, '')
       // always use forward slashes
@@ -233,12 +230,12 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
-async function generate(title, docs, filename, resolveLinks) {
+async function generate(title, docs, filename, _resoveLinks) {
   var docData;
   var html;
   var outpath;
 
-  resolveLinks = resolveLinks !== false;
+  const resolveLinks = _resoveLinks !== false;
 
   docData = {
     env: env,
@@ -258,10 +255,10 @@ async function generate(title, docs, filename, resolveLinks) {
   fs.writeFileSync(outpath, html, 'utf8');
 }
 
-async function generateSourceFiles(sourceFiles, encoding) {
-  encoding = encoding || 'utf8';
+async function generateSourceFiles(sourceFiles, enc) {
+  const encoding = enc || 'utf8';
   await Promise.all(
-    Object.keys(sourceFiles).map(async function(file) {
+    Object.keys(sourceFiles).map(async file => {
       var source;
       // links are keyed to the shortened path in each doclet's `meta.shortpath` property
       var sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened);
@@ -296,21 +293,21 @@ function attachModuleSymbols(doclets, modules) {
   var symbols = {};
 
   // build a lookup table
-  doclets.forEach(function(symbol) {
+  doclets.forEach(symbol => {
     symbols[symbol.longname] = symbols[symbol.longname] || [];
     symbols[symbol.longname].push(symbol);
   });
 
-  return modules.map(function(module) {
+  return modules.forEach(module => {
     if (symbols[module.longname]) {
       module.modules = symbols[module.longname]
         // Only show symbols that have a description. Make an exception for classes, because
         // we want to show the constructor-signature heading no matter what.
-        .filter(function(symbol) {
+        .filter(symbol => {
           return symbol.description || symbol.kind === 'class';
         })
-        .map(function(symbol) {
-          symbol = doop(symbol);
+        .map(sym => {
+          const symbol = doop(sym);
 
           if (symbol.kind === 'class' || symbol.kind === 'function') {
             symbol.name = `${symbol.name.replace('module:', '(require("')}"))`;
@@ -321,19 +318,10 @@ function attachModuleSymbols(doclets, modules) {
     }
   });
 }
-function buildSubNavMembers(list, type) {
-  var html = '';
-
-  if (list.length) {
-    html += `<div class="member-type">${type}</div>`;
-    html += '<ul class="inner">';
-    list.forEach(function(item) {
-      html += `<li>${linkto(item.longname, item.name)}</li>`;
-    });
-    html += '</ul>';
-  }
-
-  return html;
+function buildSubNavMembers(list) {
+  return list.map(item => ({
+    link: linkto(item.longname, item.name)
+  }));
 }
 /**
  * For lnb listing
@@ -359,15 +347,15 @@ function buildSubNav(obj) {
     kind: 'typedef',
     memberof: longname
   });
+  var subnav = {
+    id: `${obj.longname.replace(/"/g, '_')}_sub`,
+    members: buildSubNavMembers(members),
+    methods: buildSubNavMembers(methods),
+    events: buildSubNavMembers(events),
+    typedef: buildSubNavMembers(typedef)
+  };
 
-  var html = `<div class="hidden" id="${obj.longname.replace(/"/g, '_')}_sub">`;
-  html += buildSubNavMembers(members, 'Members');
-  html += buildSubNavMembers(methods, 'Methods');
-  html += buildSubNavMembers(events, 'Events');
-  html += buildSubNavMembers(typedef, 'Typedef');
-  html += '</div>';
-
-  return html;
+  return subnav;
 }
 
 function buildMemberNav(items, itemsSeen, linktoFn) {
@@ -422,40 +410,33 @@ function buildNav(members) {
   var seen = {};
   var seenTutorials = {};
 
-  nav += buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
-  nav += buildMemberNav(members.modules, {}, linkto);
-  nav += buildMemberNav(members.externals, seen, linktoExternal);
-  nav += buildMemberNav(members.classes, seen, linkto);
-  nav += buildMemberNav(members.namespaces, seen, linkto);
-  nav += buildMemberNav(members.mixins, seen, linkto);
-  nav += buildMemberNav(members.interfaces, seen, linkto);
+  nav.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
+  nav.modules = buildMemberNav(members.modules, {}, linkto);
+  nav.externals = buildMemberNav(members.externals, seen, linktoExternal);
+  nav.classes = buildMemberNav(members.classes, seen, linkto);
+  nav.namespaces = buildMemberNav(members.namespaces, seen, linkto);
+  nav.mixins = buildMemberNav(members.mixins, seen, linkto);
+  nav.interfaces = buildMemberNav(members.interfaces, seen, linkto);
 
   if (members.globals.length) {
-    var globalNav = '';
+    var globalNav = [];
     var useGlobalTitleLink = true;
 
-    members.globals.forEach(function(g) {
+    members.globals.forEach(g => {
       if (!hasOwnProp.call(seen, g.longname)) {
-        // tuidoc
-        //  - Add global-typedef in hidden to search api.
-        //  - Default template did not add this.
-        if (g.kind === 'typedef') {
-          globalNav += `<li class="hidden">${linkto(g.longname, g.name)}</li>`;
-        } else {
-          globalNav += `<li>${linkto(g.longname, g.name)}</li>`;
+        globalNav.push({
+          kind: g.kind,
+          link: linkto(g.longname, g.name)
+        });
+
+        if (g.kind !== 'typedef') {
           useGlobalTitleLink = false;
         }
       }
-
       seen[g.longname] = true;
     });
-
-    if (useGlobalTitleLink) {
-      // turn the heading into a link so you can actually get to the global page
-      nav += `<div class="lnb-api hidden"><h3>${linkto('global', 'Global')}</h3></div>`;
-    } else {
-      nav += `<div class="lnb-api hidden"><h3>Global</h3><ul>${globalNav}</ul></div>`;
-    }
+    nav.globals = members;
+    nav.useGlobalTitleLink = useGlobalTitleLink;
   }
 
   return nav;

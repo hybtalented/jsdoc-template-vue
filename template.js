@@ -3,9 +3,7 @@
  * @module jsdoc/template
  */
 const fs = require('jsdoc/fs');
-const path = require('path');
 const { createBundleRenderer } = require('vue-server-renderer');
-
 /**
  * Underscore template helper.
  */
@@ -31,7 +29,7 @@ class Template {
    * @return {Promise<string>} Rendered template.
    */
   render(file, data) {
-    return this.renderer.renderToString({ url: file, state: Object.create(data, { view: { get: () => this } }) });
+    return this.renderer.renderToString({ url: file, data: data, view: this });
   }
 }
 exports.Template = Template;

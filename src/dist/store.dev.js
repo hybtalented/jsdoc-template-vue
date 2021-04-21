@@ -13,9 +13,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 _vue["default"].use(_vuex["default"]);
 
-function createStore() {
+function createStore(state) {
   return new _vuex["default"].Store({
-    state: {},
-    getters: {}
+    state: state
   });
 }

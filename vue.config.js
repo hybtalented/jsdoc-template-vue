@@ -13,16 +13,25 @@ const vueConfig = {
   },
   chainWebpack(config) {
     if (process.env.NODE_ENV === 'production') {
-      config.output.libraryTarget('commonjs2');
+      config.output
+        .filename('js/index.esm.js')
+        .libraryTarget('commonjs2')
+        .libraryExport('default');
       config.plugin('ssr').use(new VueSSRServerPlugin());
-      config.optimization.splitChunks(false);
-      config.optimization.minimize(false);
+      //   config.plugin('ssr').use(new VueSSRServerPlugin());
+      config.optimization.splitChunks(false).minimize(false);
       config.module.rule('js').uses.delete('babel-loader');
       config.target('node');
       config.devtool('source-map');
-      const index_entry = config.entry('index');
-      index_entry.clear();
-      index_entry.add(resolvePath('src/entry-server.js'));
+      config
+        .entry('index')
+        .clear()
+        .add(resolvePath('src/entry-server.js'));
+      config.plugin('extract-css').tap(args => {
+        args[0].filename = 'style.css';
+        return args;
+      });
+      config.externals(['vue', 'vue-router', 'vuex']);
     }
   },
   outputDir: resolvePath('template')

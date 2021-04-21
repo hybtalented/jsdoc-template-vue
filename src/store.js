@@ -5,9 +5,6 @@ Vue.use(Vuex);
 
 export function createStore(state) {
   return new Vuex.Store({
-    state: {
-      nav: {}
-    },
-    getters: {}
+    state
   });
 }

@@ -19,8 +19,7 @@ function getMatchedComponents(router, url) {
   });
 }
 export default async context => {
-  const { app, router, store } = createApp();
+  const { app, router } = createApp(context.state, context.view);
   await getMatchedComponents(router, context.url);
-  context.state = store.state;
   return app;
 };
