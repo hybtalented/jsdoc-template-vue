@@ -2,6 +2,9 @@
 
 module.exports = {
   root: true,
+  parserOptions: {
+    parser: 'babel-eslint'
+  },
   globals: {
     req: 'readonly',
     api: 'readonly',
@@ -15,7 +18,7 @@ module.exports = {
     SaveTransResultTop: 'readonly'
   },
   parserOptions: {
-    ecmaVersion: 6
+    ecmaVersion: 2020
   },
   env: {
     browser: true
@@ -27,11 +30,7 @@ module.exports = {
   plugins: ['vue', 'prettier'],
   // check if imports actually resolve
   settings: {
-    'import/resolver': {
-      //   webpack: {
-      //     config: 'build/webpack.base.conf.js'
-      //   }
-    }
+    'import/ignore': ['jsdoc/']
   },
   // add your custom rules here
   rules: {

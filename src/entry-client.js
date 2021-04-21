@@ -1,3 +1,8 @@
-import templateComponent from './components';
+import { createApp } from './app';
 
-export default templateComponent;
+const { app, store } = createApp();
+
+if (window.__INITIAL_STATE__) {
+  store.replaceState(window.__INITIAL_STATE__);
+}
+app.$mount('#app');

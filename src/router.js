@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import Nav from './components/nav.vue';
 
 Vue.use(Router);
 
@@ -8,7 +9,8 @@ export default function createRouter() {
     mode: 'hash',
     routes: [
       {
-        path: '/global'
+        path: '/global',
+        component: Nav
       },
       { path: '/template' }
     ]

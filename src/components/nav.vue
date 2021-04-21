@@ -19,12 +19,17 @@
       <ul></ul>
     </div>
     <!-- Tutorials -->
-    <div v-for="(member, name) in members" :key="name" class="${className}">
-      <h3>${itemHeading}</h3>
-      <ul>
-        ${itemsNav}
-      </ul>
-    </div>
+    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = name==='tutorials' ? 'lnb-examples hidden': 'lnb-api hidden'}" :class="getMemberClass(name)">
+      <div :class="className" v-if="membersName[name]">
+        <h3>{{ membersName[name] }}</h3>
+        <ul>
+          <Fragment v-for="(item, index) in member" :key="index">
+            <li v-if="'longname' in item">linktoFn('', item.name) buildSubNav(item)</li>
+          </Fragment>
+        </ul>
+      </div>
+    </Fragment>
+
     <ol v-if="examples" class="lnb-tab">
       <li id="api-tab">
         <a href="#"
@@ -69,14 +74,19 @@ export default {
     },
     title: String
   },
-
+  methods: {
+    getMemberClass(name) {
+      switch (name) {
+        case 'tutorials':
+          return 'lnb-examples hidden';
+        default:
+          return 'lnb-api hidden';
+      }
+    }
+  },
   computed: {
     name() {
       return this.templates.name || this.package.name || this.title;
-    },
-    membersSetting() {
-      var setting = {};
-      Object.keys(this.members).forEach(member => {});
     }
   },
   inject: ['templates', 'package', 'logo']
