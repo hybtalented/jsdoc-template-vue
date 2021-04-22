@@ -57,7 +57,7 @@
         </ul>
         <returns v-else :doclet="doclet.returns[0]"></returns>
       </Section>
-      <details :doclet="doclet"></details>
+      <detailinfo :doclet="doclet"></detailinfo>
       <Section v-if="doclet.examples && doclet.examples.length" :name="`Example${doclet.examples.length > 1 ? 's' : ''}`">
         <examples :examples="doclet.examples"></examples>
       </Section>

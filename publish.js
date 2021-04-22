@@ -320,6 +320,7 @@ function attachModuleSymbols(doclets, modules) {
 }
 function buildSubNavMembers(list) {
   return list.map(item => ({
+    name: item.longname,
     link: linkto(item.longname, item.name)
   }));
 }
@@ -349,10 +350,12 @@ function buildSubNav(obj) {
   });
   var subnav = {
     id: `${obj.longname.replace(/"/g, '_')}_sub`,
-    members: buildSubNavMembers(members),
-    methods: buildSubNavMembers(methods),
-    events: buildSubNavMembers(events),
-    typedef: buildSubNavMembers(typedef)
+    children: {
+      members: buildSubNavMembers(members),
+      methods: buildSubNavMembers(methods),
+      events: buildSubNavMembers(events),
+      typedef: buildSubNavMembers(typedef)
+    }
   };
 
   return subnav;
@@ -360,7 +363,7 @@ function buildSubNav(obj) {
 
 function buildMemberNav(items, itemsSeen, linktoFn) {
   return items.map(item => {
-    var iteminfo = { ownname: item.longname };
+    var iteminfo = { longname: item.longname };
     iteminfo.members = buildSubNav(item);
 
     if (!hasOwnProp.call(item, 'longname')) {
@@ -402,21 +405,19 @@ function linktoExternal(longName, name) {
  */
 function buildNav(members) {
   var nav = {
-    settings: {
-      useCollapsibles: env.conf.templates.useCollapsibles
-    },
+    useCollapsibles: env.conf.templates.useCollapsibles,
     members: {}
   };
   var seen = {};
   var seenTutorials = {};
 
-  nav.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
-  nav.modules = buildMemberNav(members.modules, {}, linkto);
-  nav.externals = buildMemberNav(members.externals, seen, linktoExternal);
-  nav.classes = buildMemberNav(members.classes, seen, linkto);
-  nav.namespaces = buildMemberNav(members.namespaces, seen, linkto);
-  nav.mixins = buildMemberNav(members.mixins, seen, linkto);
-  nav.interfaces = buildMemberNav(members.interfaces, seen, linkto);
+  nav.members.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
+  nav.members.modules = buildMemberNav(members.modules, {}, linkto);
+  nav.members.externals = buildMemberNav(members.externals, seen, linktoExternal);
+  nav.members.classes = buildMemberNav(members.classes, seen, linkto);
+  nav.members.namespaces = buildMemberNav(members.namespaces, seen, linkto);
+  nav.members.mixins = buildMemberNav(members.mixins, seen, linkto);
+  nav.members.interfaces = buildMemberNav(members.interfaces, seen, linkto);
 
   if (members.globals.length) {
     var globalNav = [];
@@ -435,7 +436,7 @@ function buildNav(members) {
       }
       seen[g.longname] = true;
     });
-    nav.globals = members;
+    nav.members.globals = members;
     nav.useGlobalTitleLink = useGlobalTitleLink;
   }
 

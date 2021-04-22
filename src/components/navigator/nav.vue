@@ -19,13 +19,15 @@
       <ul></ul>
     </div>
     <!-- Tutorials -->
-    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = name==='tutorials' ? 'lnb-examples hidden': 'lnb-api hidden'}" :class="getMemberClass(name)">
+    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = name==='tutorials' ? 'lnb-examples hidden': 'lnb-api hidden'}">
       <div :class="className" v-if="membersName[name]">
         <h3>{{ membersName[name] }}</h3>
         <ul>
-          <Fragment v-for="(item, index) in member" :key="index">
-            <li v-if="'longname' in item">linktoFn('', item.name) buildSubNav(item)</li>
-          </Fragment>
+          <li v-for="(item, index) in member" :key="index">
+            <extracthtml :html="item.link"></extracthtml>
+            <button v-if="item.longname && nav.useCollapsibles" type="button" class="hidden toggle-subnav btn btn-link"><span class="glyphicon glyphicon-plus"></span>'</button>
+            <SubNav :members="item.members"></SubNav>
+          </li>
         </ul>
       </div>
     </Fragment>
@@ -45,26 +47,14 @@
   </nav>
 </template>
 <script>
+import SubNav from './subnav.vue';
+
 export default {
-  props: {
-    members: {
-      type: Object
-    },
-    membersName: {
-      type: Object,
-      default() {
-        return {
-          tutorials: 'Tutorials',
-          modules: 'Modules',
-          externals: 'Externals',
-          classes: 'Classes',
-          namespaces: 'Namespaces',
-          mixins: 'Mixins',
-          interfaces: 'Interfaces'
-        };
-      }
-    },
-    title: String
+  components: { SubNav },
+  provide() {
+    return {
+      membersName: this.membersName
+    };
   },
   methods: {
     getMemberClass(name) {
@@ -77,11 +67,32 @@ export default {
     }
   },
   computed: {
+    membersName() {
+      return {
+        tutorials: 'Tutorials',
+        modules: 'Modules',
+        externals: 'Externals',
+        classes: 'Classes',
+        namespaces: 'Namespaces',
+        mixins: 'Mixins',
+        interfaces: 'Interfaces',
+        members: 'Members',
+        methods: 'Methods',
+        events: 'Events',
+        typedef: 'Typedef'
+      };
+    },
     name() {
       return this.templates.name || this.package.name || this.title;
+    },
+    nav() {
+      return this.view.nav;
+    },
+    members() {
+      return this.nav.members;
     }
   },
-  inject: ['templates', 'package', 'logo']
+  inject: ['templates', 'package', 'logo', 'view']
 };
 </script>
 
