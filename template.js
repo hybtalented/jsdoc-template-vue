@@ -2,7 +2,6 @@
  * Wrapper for underscore's template utility to allow loading templates from files.
  * @module jsdoc/template
  */
-const fs = require('jsdoc/fs');
 const { createBundleRenderer } = require('vue-server-renderer');
 /**
  * Underscore template helper.

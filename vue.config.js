@@ -18,9 +18,9 @@ const vueConfig = {
         .libraryTarget('commonjs2')
         .libraryExport('default');
       config.plugin('ssr').use(new VueSSRServerPlugin());
-      //   config.plugin('ssr').use(new VueSSRServerPlugin());
       config.optimization.splitChunks(false).minimize(false);
-      config.module.rule('js').delete('babel-loader');
+      // don't use babel-loader for ssr version
+      config.module.rule('js').uses.delete('babel-loader');
       config.target('node');
       config.devtool('source-map');
       config

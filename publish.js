@@ -230,7 +230,7 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
-async function generate(title, docs, filename, _resoveLinks) {
+async function generate(file, title, docs, filename, _resoveLinks, template) {
   var docData;
   var html;
   var outpath;
@@ -246,7 +246,7 @@ async function generate(title, docs, filename, _resoveLinks) {
   };
 
   outpath = path.join(outdir, filename);
-  html = await view.render('container', docData);
+  html = await view.render(file, docData, template);
 
   if (resolveLinks) {
     html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
@@ -273,7 +273,7 @@ async function generateSourceFiles(sourceFiles, enc) {
         logger.error('Error while generating source file %s: %s', file, e.message);
       }
 
-      await generate(`Source: ${sourceFiles[file].shortened}`, [source], sourceOutfile, false);
+      await generate('source', `Source: ${sourceFiles[file].shortened}`, [source], sourceOutfile, false);
     })
   );
 }
@@ -504,11 +504,11 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   var sourceFiles = {};
   var sourceFilePaths = [];
-  data().each(function(doclet) {
+  data().each(doclet => {
     doclet.attribs = '';
 
     if (doclet.examples) {
-      doclet.examples = doclet.examples.map(function(example) {
+      doclet.examples = doclet.examples.map(example => {
         var caption;
         var code;
 
@@ -524,7 +524,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       });
     }
     if (doclet.see) {
-      doclet.see.forEach(function(seeItem, i) {
+      doclet.see.forEach((seeItem, i) => {
         doclet.see[i] = hashToLink(doclet, seeItem);
       });
     }
@@ -549,7 +549,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var fromDir = path.join(templatePath, 'static');
   var staticFiles = fs.ls(fromDir, 3);
 
-  staticFiles.forEach(function(fileName) {
+  staticFiles.forEach(fileName => {
     var toDir = fs.toDir(fileName.replace(fromDir, outdir));
     fs.mkPath(toDir);
     fs.copyFileSync(fileName, toDir);
@@ -615,7 +615,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   });
 
   // do this after the urls have all been generated
-  data().each(function(doclet) {
+  data().each(doclet => {
     doclet.ancestors = getAncestorLinks(doclet);
 
     if (doclet.kind === 'member') {
@@ -655,13 +655,13 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   }
 
   if (members.globals.length) {
-    await generate('Global', [{ kind: 'globalobj' }], globalUrl);
+    await generate('global', 'Global', [{ kind: 'globalobj' }], globalUrl);
   }
 
   // index page displays information from package.json
   var packages = find({ kind: 'package' });
 
-  await generate('Home', packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]), indexUrl);
+  await generate('home', 'Home', packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]), indexUrl);
 
   // set up the lists that we'll use to generate pages
   var classes = taffy(members.classes);
@@ -675,32 +675,32 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     Object.keys(helper.longnameToUrl).map(async longname => {
       var myModules = helper.find(modules, { longname: longname });
       if (myModules.length) {
-        await generate(`Module: ${myModules[0].name}`, myModules, helper.longnameToUrl[longname]);
+        await generate('module', `Module: ${myModules[0].name}`, myModules, helper.longnameToUrl[longname]);
       }
 
       var myClasses = helper.find(classes, { longname: longname });
       if (myClasses.length) {
-        await generate(`Class: ${myClasses[0].name}`, myClasses, helper.longnameToUrl[longname]);
+        await generate('class', `Class: ${myClasses[0].name}`, myClasses, helper.longnameToUrl[longname]);
       }
 
       var myNamespaces = helper.find(namespaces, { longname: longname });
       if (myNamespaces.length) {
-        await generate(`Namespace: ${myNamespaces[0].name}`, myNamespaces, helper.longnameToUrl[longname]);
+        await generate('namespace', `Namespace: ${myNamespaces[0].name}`, myNamespaces, helper.longnameToUrl[longname]);
       }
 
       var myMixins = helper.find(mixins, { longname: longname });
       if (myMixins.length) {
-        await generate(`Mixin: ${myMixins[0].name}`, myMixins, helper.longnameToUrl[longname]);
+        await generate('mixin', `Mixin: ${myMixins[0].name}`, myMixins, helper.longnameToUrl[longname]);
       }
 
       var myExternals = helper.find(externals, { longname: longname });
       if (myExternals.length) {
-        await generate(`External: ${myExternals[0].name}`, myExternals, helper.longnameToUrl[longname]);
+        await generate('external', `External: ${myExternals[0].name}`, myExternals, helper.longnameToUrl[longname]);
       }
 
       var myInterfaces = helper.find(interfaces, { longname: longname });
       if (myInterfaces.length) {
-        await generate(`Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
+        await generate('interface', `Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
       }
     })
   );

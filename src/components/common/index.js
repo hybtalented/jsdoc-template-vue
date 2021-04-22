@@ -13,14 +13,14 @@ import Properties from './properties.vue';
  */
 export default {
   install(Vue) {
-    Vue.components('method', Method);
-    Vue.components('params', Param);
-    Vue.components('arguement', Arguement);
-    Vue.components('type', Type);
-    Vue.components('exceptions', Exceptions);
-    Vue.components('returns', Returns);
-    Vue.components('examples', Examples);
-    Vue.components('details', Details);
-    Vue.components('properties', Properties);
+    Vue.component('method', Method);
+    Vue.component('params', Param);
+    Vue.component('arguement', Arguement);
+    Vue.component('type', Type);
+    Vue.component('exceptions', Exceptions);
+    Vue.component('returns', Returns);
+    Vue.component('examples', Examples);
+    Vue.component('details', Details);
+    Vue.component('properties', Properties);
   }
 };
