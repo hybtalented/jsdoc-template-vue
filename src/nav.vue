@@ -47,14 +47,6 @@
 <script>
 export default {
   props: {
-    logo: {
-      type: Object,
-      default() {
-        return {
-          url: 'img/toast-ui.png'
-        };
-      }
-    },
     members: {
       type: Object
     },

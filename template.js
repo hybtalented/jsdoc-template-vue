@@ -28,8 +28,8 @@ class Template {
    * @param {object} data - Template variables (doesn't have to be object, but passing variables dictionary is best way and most common use).
    * @return {Promise<string>} Rendered template.
    */
-  render(file, data) {
-    return this.renderer.renderToString({ url: file, data: data, view: this });
+  render(file, data, template) {
+    return this.renderer.renderToString({ url: file, template, data: data, view: this });
   }
 }
 exports.Template = Template;

@@ -42,6 +42,7 @@
 
 <script>
 export default {
+  name: 'Params',
   props: { params: { type: Array } },
   methods: {
     getAttr(param) {

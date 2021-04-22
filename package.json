@@ -27,6 +27,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-vue": "^6.2.2",
+    "less-loader": "^4.1.0",
     "prettier": "^1.19.1",
     "vue-server-renderer": "^2.6.12",
     "vue-template-compiler": "^2.6.11"

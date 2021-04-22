@@ -20,7 +20,7 @@ const vueConfig = {
       config.plugin('ssr').use(new VueSSRServerPlugin());
       //   config.plugin('ssr').use(new VueSSRServerPlugin());
       config.optimization.splitChunks(false).minimize(false);
-      config.module.rule('js').uses.delete('babel-loader');
+      config.module.rule('js').delete('babel-loader');
       config.target('node');
       config.devtool('source-map');
       config
