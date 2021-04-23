@@ -1,10 +1,15 @@
+import { objectExtends } from './util';
+
 export default {
   name: 'fragment',
-  functional: true,
-  render(createElement, context) {
-    if (context.data.scopedSlots && context.data.scopedSlots.default) {
-      return context.data.scopedSlots.default(context.slots());
+  render(createElement) {
+    let children;
+    if (this.$scopedSlots && this.$scopedSlots.default) {
+      children = this.$scopedSlots.default();
+    } else {
+      children = this.$children || [];
     }
-    return context.children;
+    // ssrRender
+    return objectExtends(this._ssrNode('', '', children), createElement('div'));
   }
 };

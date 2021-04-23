@@ -18,15 +18,28 @@
       <input type="text" placeholder="Search" />
       <ul></ul>
     </div>
-    <!-- Tutorials -->
-    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = name==='tutorials' ? 'lnb-examples hidden': 'lnb-api hidden'}">
-      <div :class="className" v-if="membersName[name]">
+    <!-- Entrys -->
+    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = getMemberClass(name)}">
+      <div :class="className" v-if="membersName[name] && member.length > 0">
         <h3>{{ membersName[name] }}</h3>
         <ul>
           <li v-for="(item, index) in member" :key="index">
             <extracthtml :html="item.link"></extracthtml>
-            <button v-if="item.longname && nav.useCollapsibles" type="button" class="hidden toggle-subnav btn btn-link"><span class="glyphicon glyphicon-plus"></span>'</button>
-            <SubNav :members="item.members"></SubNav>
+            <button v-if="item.longname && nav.useCollapsibles" type="button" class="hidden toggle-subnav btn btn-link"><span class="glyphicon glyphicon-plus"></span></button>
+            <SubNav :members="item.children" :id="item.id"></SubNav>
+          </li>
+        </ul>
+      </div>
+    </Fragment>
+    <Fragment v-if="nav.globals && nav.globals.length > 0">
+      <div v-if="nav.globalTitleLink" class="lnb-api hidden">
+        <h3><extracthtml :html="nav.globalTitleLink" /></h3>
+      </div>
+      <div v-else class="lnb-api hidden">
+        <h3>Global</h3>
+        <ul>
+          <li v-for="(g, i) in nav.globals" :key="i" :class="{ hidden: g.kind === 'typedef' }">
+            <extracthtml :html="g.link"></extracthtml>
           </li>
         </ul>
       </div>

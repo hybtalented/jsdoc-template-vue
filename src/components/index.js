@@ -7,7 +7,7 @@ import Returns from './common/returns.vue';
 import Examples from './common/examples.vue';
 import Details from './common/details.vue';
 import Properties from './common/properties.vue';
-import ExtractHTML from './util/extracthtml.vue';
+import ExtractHTML from './util/extracthtml.js';
 import Fragment from './util/fragment';
 /**
  * global components

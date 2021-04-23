@@ -230,11 +230,10 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
-async function generate(file, title, docs, filename, _resoveLinks, template) {
+async function generate(file, title, docs, filename, _resoveLinks) {
   var docData;
   var html;
   var outpath;
-
   const resolveLinks = _resoveLinks !== false;
 
   docData = {
@@ -246,7 +245,7 @@ async function generate(file, title, docs, filename, _resoveLinks, template) {
   };
 
   outpath = path.join(outdir, filename);
-  html = await view.render(file, docData, template);
+  html = await view.render(file, docData);
 
   if (resolveLinks) {
     html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
@@ -349,13 +348,10 @@ function buildSubNav(obj) {
     memberof: longname
   });
   var subnav = {
-    id: `${obj.longname.replace(/"/g, '_')}_sub`,
-    children: {
-      members: buildSubNavMembers(members),
-      methods: buildSubNavMembers(methods),
-      events: buildSubNavMembers(events),
-      typedef: buildSubNavMembers(typedef)
-    }
+    members: buildSubNavMembers(members),
+    methods: buildSubNavMembers(methods),
+    events: buildSubNavMembers(events),
+    typedef: buildSubNavMembers(typedef)
   };
 
   return subnav;
@@ -363,8 +359,8 @@ function buildSubNav(obj) {
 
 function buildMemberNav(items, itemsSeen, linktoFn) {
   return items.map(item => {
-    var iteminfo = { longname: item.longname };
-    iteminfo.members = buildSubNav(item);
+    var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_')}_sub` };
+    iteminfo.children = buildSubNav(item);
 
     if (!hasOwnProp.call(item, 'longname')) {
       iteminfo.link = linktoFn('', item.name);
@@ -436,8 +432,10 @@ function buildNav(members) {
       }
       seen[g.longname] = true;
     });
-    nav.members.globals = members;
-    nav.useGlobalTitleLink = useGlobalTitleLink;
+    nav.globals = members;
+    if (useGlobalTitleLink) {
+      nav.globalTitleLink = linkto('global', 'Global');
+    }
   }
 
   return nav;
