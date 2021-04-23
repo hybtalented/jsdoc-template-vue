@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Source from './components/entrys/source.vue';
+import Global from './components/entrys/global.vue';
 
 Vue.use(Router);
 
@@ -9,7 +10,8 @@ export default function createRouter() {
     mode: 'history',
     routes: [
       {
-        path: '/global'
+        path: '/global',
+        component: Global
       },
       { path: '/class' },
       { path: '/namespace' },

@@ -432,7 +432,7 @@ function buildNav(members) {
       }
       seen[g.longname] = true;
     });
-    nav.globals = members;
+    nav.globals = globalNav;
     if (useGlobalTitleLink) {
       nav.globalTitleLink = linkto('global', 'Global');
     }
