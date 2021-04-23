@@ -1,6 +1,8 @@
 <template>
   <Fragment>
-    <span v-for="(name, i) in names" :key="i" class="param-type" v-html="view.linkto(name, view.htmlsafe(name))"></span>
+    <span v-for="(name, i) in names" :key="i" class="param-type">
+      <linkto :longname="name" :linkText="view.htmlsafe(name)"></linkto>
+    </span>
   </Fragment>
 </template>
 

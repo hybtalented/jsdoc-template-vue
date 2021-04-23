@@ -23,12 +23,16 @@
             </template>
           </td>
 
-          <td v-if="hasAttributes" class="attributes" v-html="getAttr(param)"></td>
+          <td v-if="hasAttributes" class="attributes">
+            <extracthtml :html="getAttr(param)"></extracthtml>
+          </td>
 
-          <td v-if="hasDefault" class="default" v-html="param.defaultvalue && view.htmlsafe(param.defaultvalue)"></td>
+          <td v-if="hasDefault" class="default">
+            <extracthtml :html="param.defaultvalue && view.htmlsafe(param.defaultvalue)"></extracthtml>
+          </td>
 
           <td class="description last">
-            <template v-html="param.description"></template>
+            <extracthtml :html="param.description"></extracthtml>
             <template v-if="param.subparams">
               <params :params="param.subparams"></params>
             </template>
@@ -43,7 +47,14 @@
 <script>
 export default {
   name: 'Params',
-  props: { params: { type: Array } },
+  props: {
+    params: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
+  },
   methods: {
     getAttr(param) {
       const attrs = [];
@@ -94,9 +105,9 @@ export default {
     },
     hasDefault() {
       return this.paramsInfo.some(param => param && typeof param.defaultvalue !== 'undefined');
-    },
-    inject: ['view']
-  }
+    }
+  },
+  inject: ['view']
 };
 </script>
 

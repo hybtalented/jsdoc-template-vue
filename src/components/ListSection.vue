@@ -1,7 +1,9 @@
 <template>
   <Section :name="name" :titleClass="titleClass">
     <ul>
-      <li v-for="(r, index) in links" :key="index" v-html="view.linkto(r)"></li>
+      <li v-for="(r, index) in links" :key="index">
+        <linkto :longname="r"></linkto>
+      </li>
     </ul>
   </Section>
 </template>

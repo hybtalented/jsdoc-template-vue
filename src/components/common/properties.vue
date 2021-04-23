@@ -20,9 +20,13 @@
           <type v-if="prop.type && prop.type.names" :names="prop.type.names"></type>
         </td>
 
-        <td v-if="props.hasAttributes" class="attributes" v-html="getAttr(prop)"></td>
+        <td v-if="props.hasAttributes" class="attributes">
+          <extracthtml :html="getAttr(prop)"></extracthtml>
+        </td>
 
-        <td v-if="hasDefault" class="default" v-html="typeof prop.defaultvalue !== 'undefined' ? view.htmlsafe(prop.defaultvalue) : ''"></td>
+        <td v-if="hasDefault" class="default">
+          <extracthtml :html="typeof prop.defaultvalue !== 'undefined' ? view.htmlsafe(prop.defaultvalue) : ''"></extracthtml>
+        </td>
 
         <td class="description last">
           {{ prop.description }}

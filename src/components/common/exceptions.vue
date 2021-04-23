@@ -2,7 +2,9 @@
   <Fragment>
     <dl v-if="doclet.description && doclet.type && doclet.type.names">
       <dt>
-        <div class="param-desc" v-html="data.description"></div>
+        <div class="param-desc">
+          <extracthtml :html="data.description"></extracthtml>
+        </div>
       </dt>
       <dd></dd>
       <dt>
@@ -18,7 +20,7 @@
       <dd></dd>
     </dl>
     <div v-else class="param-desc">
-      <template v-if="doclet.description" v-html="doclet.description"></template>
+      <extracthtml v-if="doclet.description" :html="doclet.description"></extracthtml>
       <type v-else-if="doclet.type && doclet.type.names" :names="doclet.type.names"></type>
     </div>
   </Fragment>

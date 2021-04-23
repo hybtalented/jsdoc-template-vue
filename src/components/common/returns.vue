@@ -1,7 +1,7 @@
 <template>
   <Fragment>
     <type v-if="doclet.type && doclet.type.names" :names="doclet.type.names"></type>
-    <template v-if="doclet.description" v-html="doclet.description"></template>
+    <extracthtml v-if="doclet.description" :html="doclet.description"></extracthtml>
   </Fragment>
 </template>
 

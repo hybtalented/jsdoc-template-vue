@@ -2,7 +2,9 @@
   <section>
     <header>
       <ul v-if="children.length > 0">
-        <li v-for="(t, i) in children" :key="i" v-html="self.tutoriallink(t.name)"></li>
+        <li v-for="(t, i) in children" :key="i">
+          <extracthtml :html="self.tutoriallink(t.name)"></extracthtml>
+        </li>
       </ul>
 
       <h2 v-header>{{ header }}</h2>
@@ -21,11 +23,21 @@
       </ul>
       <article>
         <iframe id="example-result" width="100%" height="800" frameborder="0" :src="'tutorials/' + originalFileName + '.html'"></iframe>
-        <div id="example-js" class="hidden"><pre class="prettyprint source" v-html="codeJs"></pre></div>
-        <div id="example-html" class="hidden"><pre class="prettyprint source" v-html="codeHtml"></pre></div>
+        <div id="example-js" class="hidden">
+          <pre class="prettyprint source">
+            <extracthtml  :html="codeJs"></extracthtml>
+            </pre>
+        </div>
+        <div id="example-html" class="hidden">
+          <pre class="prettyprint source">
+            <extracthtml :html="codeHtml"></extracthtml>
+            </pre>
+        </div>
       </article>
     </Fragment>
-    <article v-else class="readme" v-html="content"></article>
+    <article v-else class="readme">
+      <extracthtml :html="content"></extracthtml>
+    </article>
   </section>
 </template>
 

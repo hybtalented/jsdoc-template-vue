@@ -8,8 +8,10 @@
         <Fragment v-else> {{ doclet.kind === 'class' ? 'new ' : '' }} {{ doclet.attribs }} {{ doclet.name }}} {{ doclet.signature ? doclet.signature : '' }}</Fragment>
 
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
-          <code v-html="view.linkto(doclet.meta.shortpath)"></code>,
-          <code v-html="view.linkto(doclet.meta.shortpath, 'line ' + doclet.meta.lineno, null, 'line' + doclet.meta.lineno)"></code>
+          <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
+          <code>
+            <linkto :longname="doclet.meta.shortpath" :linkText="'line ' + doclet.meta.lineno" :fragmentId="'line' + doclet.meta.lineno"></linkto>
+          </code>
         </div>
       </h4>
       <p v-if="doclet.summary" class="summary">{{ doclet.summary }}</p>
@@ -30,11 +32,13 @@
       </Section>
       <Section v-if="doclet['this']" name="This">
         <ul>
-          <li v-html="view.linkto(doclet['this'], doclet['this'])"></li>
+          <li>
+            <linkto :longname="doclet['this']" :linkText="doclet['this']"></linkto>
+          </li>
         </ul>
       </Section>
       <Section v-if="doclet.params && doclet.params.length && !doclet.hideconstructor" class="container-params" name="Parameters">
-        <params :params="Params"></params>
+        <params :params="doclet.params"></params>
       </Section>
 
       <ListSection v-if="doclet.kind !== 'module' && doclet.requires && doclet.requires.length" name="Requires" :links="doclet.requires"></ListSection>
@@ -81,7 +85,8 @@ export default {
     title() {
       return this.doclet.hideconstructor ? this.name : (this.doclet.kind === 'class' ? 'new ' : '') + this.doclet.attribs + this.name + (this.doclet.signature ? this.doclet.signature : '');
     }
-  }
+  },
+  inject: ['view']
 };
 </script>
 

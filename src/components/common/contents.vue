@@ -56,7 +56,7 @@
       <h3 class="subsection-title">Events</h3>
       <dl>
         <Fragment v-for="(e, i) in events" :key="i">
-          <method v-if="e.signature" :doclet="e"></method>
+          <method :doclet="e"></method>
         </Fragment>
       </dl>
     </Fragment>
@@ -65,9 +65,13 @@
 
 <script>
 export default {
+  name: 'contents',
   props: {
     doclet: Object,
-    isGlobalPage: Boolean
+    isGlobalPage: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     classes() {

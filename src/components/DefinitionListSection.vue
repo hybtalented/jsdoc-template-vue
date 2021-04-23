@@ -1,7 +1,9 @@
 <template>
   <DefinitionSection :name="name" :ul-class="ulClass" :class-scope="classScope">
     <ul>
-      <li :class="liClass" v-for="(r, index) in links" :key="index" v-html="view.linkto(r, view.htmlsafe(r))"></li>
+      <li :class="liClass" v-for="(r, index) in links" :key="index">
+        <linkto :longname="r" :linkText="view.htmlsafe(r)"></linkto>
+      </li>
     </ul>
   </DefinitionSection>
 </template>

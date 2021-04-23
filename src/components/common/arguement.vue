@@ -1,6 +1,8 @@
 <template>
   <ul v-if="doclet.augments && doclet.augments.length">
-    <li v-for="(a, i) in doclet.augments" :key="i" v-html="view.linkto(a, a)"></li>
+    <li v-for="(a, i) in doclet.augments" :key="i">
+      <linkto :longname="a" :linkText="a"></linkto>
+    </li>
   </ul>
 </template>
 

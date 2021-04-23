@@ -1,17 +1,14 @@
 <template>
-  <extracthtml :html="view.linkto(link, name)"></extracthtml>
+  <extracthtml :html="view.linkto(longname, view.htmlsafe(linkText), cssClass, fragmentId)"></extracthtml>
 </template>
 
 <script>
 export default {
   props: {
-    link: String,
-    name: {
-      type: String,
-      default() {
-        return this.link;
-      }
-    }
+    longname: String,
+    linkText: String,
+    cssClass: String,
+    fragmentId: String
   },
   inject: ['view']
 };

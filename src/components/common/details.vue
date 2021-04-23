@@ -11,28 +11,40 @@
         <li>{{ doclet.since }}</li>
       </definition-section>
       <definition-section v-if="doclet.inherited && doclet.inherits && !doclet.overrides" name="Inherited From" classScope="inherited-from" ulClass="dummy">
-        <li v-html="view.linkto(doclet.inherits, view.htmlsafe(doclet.inherits))"></li>
+        <li>
+          <linkto :longname="doclet.inherits" :linkText="doclet.inherits"></linkto>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.overrides" name="Overrides" classScope="tag-overrides" ulClass="dummy">
-        <li v-html="view.linkto(doclet.overrides, view.htmlsafe(doclet.overrides))"></li>
+        <li>
+          <linkto :longname="doclet.overrides" :linkText="doclet.overrides"></linkto>
+        </li>
       </definition-section>
 
       <definition-list-section v-if="doclet.implementations" name="Implementations" classScope="implementations" :links="doclet.implementations"> </definition-list-section>
       <definition-list-section v-if="doclet.implements && doclet.implements.length" name="Implements" classScope="implements" :links="doclet.implements"> </definition-list-section>
       <definition-section v-if="doclet.mixes && doclet.mixes.length" name="Mixes In" classScope="mixes">
-        <li v-for="(a, i) in doclet.mixes" :key="i" v-html="view.linkto(a, a)"></li>
+        <li v-for="(a, i) in doclet.mixes" :key="i">
+          <linkto :longname="a" :linkText="a"></linkto>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.deprecated" name="Deprecated" :classScope="doclet.deprecated === true ? 'important yes-def tag-deprecated' : 'important tag-deprecated'" ulClass="dummy">
         <li>{{ doclet.deprecated === true ? 'Yes' : doclet.deprecated }}</li>
       </definition-section>
       <definition-section v-if="doclet.author && doclet.author.length" name="Author" classScope="tag-author">
-        <li v-for="(a, i) in doclet.author" :key="i" v-html="view.resolveAuthorLinks(a)"></li>
+        <li v-for="(a, i) in doclet.author" :key="i">
+          <extracthtml :html="view.resolveAuthorLinks(a)"></extracthtml>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.copyright" name="Copyright" classScope="tag-copyright" ulClass="dummy">
-        <li v-html="doclet.copyright"></li>
+        <li>
+          <extracthtml :html="doclet.copyright"></extracthtml>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.license" name="License" classScope="tag-license" ulClass="dummy">
-        <li v-html="doclet.license"></li>
+        <li>
+          <extracthtml :html="doclet.license"></extracthtml>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.defaultvalue" name="Default Value" classScope="tag-default" ulClass="dummy">
         <li :class="isComplicateDefaultValue ? 'object-value' : ''">
@@ -43,13 +55,19 @@
         </li>
       </definition-section>
       <definition-section v-if="doclet.tutorials && doclet.tutorials.length" name="Tutorials" classScope="tag-tutorial">
-        <li v-for="(t, i) in doclet.tutorials" :key="i" v-html="view.tutoriallink(t)"></li>
+        <li v-for="(t, i) in doclet.tutorials" :key="i">
+          <extracthtml :html="view.tutoriallink(t)"></extracthtml>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.see && doclet.see.length" name="See" classScope="tag-see">
-        <li v-for="(s, i) in doclet.see" :key="i" v-html="view.linkto(s)"></li>
+        <li v-for="(s, i) in doclet.see" :key="i">
+          <linkto :longname="s"></linkto>
+        </li>
       </definition-section>
       <definition-section v-if="doclet.todo && doclet.todo.length" name="To Do" classScope="tag-todo">
-        <li v-for="(t, i) in doclet.todo" :key="i" v-html="t"></li>
+        <li v-for="(t, i) in doclet.todo" :key="i">
+          <extracthtml :html="t"></extracthtml>
+        </li>
       </definition-section>
     </dl>
   </Fragment>

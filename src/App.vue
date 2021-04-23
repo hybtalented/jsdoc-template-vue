@@ -9,7 +9,9 @@
 
     <footer>
       <img class="logo" :src="logo.url" :style="{ width: logo.width, height: logo.height }" />
-      <div class="footer-text" v-html="footerText || 'NHN Entertainment. Frontend Development Lab'"></div>
+      <div class="footer-text">
+        <extracthtml :html="footerText || 'NHN Entertainment. Frontend Development Lab'"></extracthtml>
+      </div>
     </footer>
   </div>
 </template>

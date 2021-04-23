@@ -1,7 +1,9 @@
 <template>
   <Fragment>
     <Fragment v-for="(example, i) in examples" :key="i">
-      <p v-if="example.caption" class="code-caption" v-html="example.caption"></p>
+      <p v-if="example.caption" class="code-caption">
+        <extracthtml :html="example.caption"></extracthtml>
+      </p>
       <pre class="prettyprint"><code>{{view.htmlsafe(example.code)}}</code></pre>
     </Fragment>
   </Fragment>
