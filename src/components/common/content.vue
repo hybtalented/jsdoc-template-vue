@@ -28,7 +28,7 @@
       </Fragment>
       <Fragment v-if="namespaces && namespaces.length">
         <h3 class="subsection-title">Namespaces</h3>
-        <subsection-default :doclets="mixins"></subsection-default>
+        <subsection-default :doclets="namespaces"></subsection-default>
       </Fragment>
     </Fragment>
     <Fragment v-if="members && members.length && members.forEach">
@@ -40,7 +40,7 @@
     <Fragment v-if="methods && methods.length && methods.forEach">
       <h3 class="subsection-title">Methods</h3>
       <dl>
-        <method v-for="(m, i) in members" :key="i" :doclet="m"></method>
+        <method v-for="(m, i) in methods" :key="i" :doclet="m"></method>
       </dl>
     </Fragment>
     <Fragment v-if="typedefs && typedefs.length && typedefs.forEach">
@@ -52,18 +52,14 @@
         </Fragment>
       </dl>
     </Fragment>
-    <?js
-        var events = self.find({kind: 'event', memberof: isGlobalPage ? {isUndefined: true} : doc.longname});
-        if (events && events.length && events.forEach) {
-    ?>
-    <h3 class="subsection-title">Events</h3>
-
-    <dl>
-      <?js events.forEach(function(e) { ?>
-      <?js= self.partial('method.tmpl', e) ?>
-      <?js }); ?>
-    </dl>
-    <?js } ?>
+    <Fragment v-if="events && events.length && events.forEach">
+      <h3 class="subsection-title">Events</h3>
+      <dl>
+        <Fragment v-for="(e, i) in events" :key="i">
+          <method v-if="e.signature" :doclet="e"></method>
+        </Fragment>
+      </dl>
+    </Fragment>
   </article>
 </template>
 
@@ -99,6 +95,9 @@ export default {
     },
     typedefs() {
       return this.view.find({ kind: 'typedef', memberof: this.isGlobalPage ? { isUndefined: true } : this.doclet.longname });
+    },
+    events() {
+      return this.view.find({ kind: 'event', memberof: this.isGlobalPage ? { isUndefined: true } : this.doclet.longname });
     }
   },
   inject: ['view']
