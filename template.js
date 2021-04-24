@@ -1,8 +1,10 @@
+/* eslint-disable import/no-dynamic-require,global-require */
 /**
  * Wrapper for underscore's template utility to allow loading templates from files.
  * @module jsdoc/template
  */
 const { createBundleRenderer } = require('vue-server-renderer');
+const fs = require('fs');
 /**
  * Underscore template helper.
  */
@@ -10,11 +12,12 @@ class Template {
   /**
    * @param {string} filepath - Templates directory.
    */
-  constructor(bundle) {
-    this.layout = null;
+  constructor(layout, bundle, manifest) {
     this.cache = {};
     this.renderer = createBundleRenderer(bundle, {
-      runInNewContext: false
+      template: fs.readFileSync(layout),
+      runInNewContext: false,
+      clientManifest: require(manifest)
     });
   }
 

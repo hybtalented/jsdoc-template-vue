@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --mode production",
+    "build": "npm run build-client && npm run build-server",
+    "build-client": "vue-cli-service build --mode production --target app src/entry-client.js",
+    "build-server": "vue-cli-service build --mode production --target lib --no-clean --formats commonjs src/entry-server.js",
     "lint": "vue-cli-service lint",
     "doc": "jsdoc -c examples/jsdoc.json"
   },
@@ -29,6 +31,7 @@
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "less-loader": "^4.1.0",
+    "minimist": "^1.2.5",
     "prettier": "^1.19.1",
     "vue-template-compiler": "^2.6.11"
   },

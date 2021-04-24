@@ -10,7 +10,7 @@ var util = require('util');
 var _ = require('underscore');
 const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
-var template = require('./template');
+var { Template } = require('./template');
 
 var { htmlsafe } = helper;
 var { linkto } = helper;
@@ -122,7 +122,7 @@ function updateItemName(item) {
 
 function addParamAttributes(params) {
   return params
-    .filter(function(param) {
+    .filter(param => {
       return param.name && param.name.indexOf('.') === -1;
     })
     .map(updateItemName);
@@ -132,7 +132,7 @@ function buildItemTypeStrings(item) {
   var types = [];
 
   if (item && item.type && item.type.names) {
-    item.type.names.forEach(function(name) {
+    item.type.names.forEach(name => {
       types.push(linkto(name, htmlsafe(name)));
     });
   }
@@ -153,7 +153,7 @@ function buildAttribsString(attribs) {
 function addNonParamAttributes(items) {
   var types = [];
 
-  items.forEach(function(item) {
+  items.forEach(item => {
     types = types.concat(buildItemTypeStrings(item));
   });
 
@@ -178,7 +178,7 @@ function addSignatureReturns(f) {
   // who use multiple @return tags aren't using Closure Compiler type annotations, and vice-versa.
   if (source) {
     source.forEach(item => {
-      helper.getAttribs(item).forEach(function(attrib) {
+      helper.getAttribs(item).forEach(attrib => {
         if (attribs.indexOf(attrib) === -1) {
           attribs.push(attrib);
         }
@@ -195,7 +195,7 @@ function addSignatureReturns(f) {
     returnTypesString = util.format(' &rarr; %s{%s}', attribsString, returnTypes.join('|'));
   }
 
-  f.signature = `<span class="signature">${f.signature || ''}</span>` + `<span class="type-signature">${returnTypesString}</span>`;
+  f.signature = `<span class="signature">${f.signature || ''}</span><span class="type-signature">${returnTypesString}</span>`;
 }
 
 function addSignatureTypes(f) {
@@ -446,7 +446,7 @@ function buildNav(members) {
  * @param {string} src The path to the thing to copy.
  * @param {string} dest The path to the new copy.
  */
-var copyRecursiveSync = function(src, dest) {
+function copyRecursiveSync(src, dest) {
   var contents;
   var srcExists = fs.existsSync(src);
   var destExists = fs.existsSync(dest);
@@ -458,7 +458,7 @@ var copyRecursiveSync = function(src, dest) {
       if (!destExists) {
         fs.mkdirSync(dest);
       }
-      fs.readdirSync(src).forEach(function(childItemName) {
+      fs.readdirSync(src).forEach(childItemName => {
         copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
       });
     } else {
@@ -466,7 +466,7 @@ var copyRecursiveSync = function(src, dest) {
       fs.writeFileSync(dest, contents);
     }
   }
-};
+}
 
 /**
     @param {TAFFY} taffyData See <http://taffydb.com/>.
@@ -478,12 +478,13 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   var conf = env.conf.templates || {};
   conf.default = conf.default || {};
-
-  var templatePath = path.normalize(opts.template);
+  const templatePath = path.normalize(opts.template);
   // set up templating
 
-  view = new template.Template(
-    conf.default.layoutFile ? path.getResourcePath(path.dirname(conf.default.layoutFile), path.basename(conf.default.layoutFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json')
+  view = new Template(
+    conf.default.layoutFile ? path.getResourcePath(path.dirname(conf.default.layoutFile), path.basename(conf.default.layoutFile)) : path.join(templatePath, 'layout.html'),
+    conf.bundleFile ? path.getResourcePath(path.dirname(conf.bundleFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json'),
+    conf.manifestFile ? path.getResourcePath(path.dirname(conf.manifestFile)) : path.join(templatePath, 'template/vue-ssr-client-manifest.json')
   );
 
   // claim some special filenames in advance, so the All-Powerful Overseer of Filename Uniqueness
@@ -545,7 +546,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   fs.mkPath(outdir);
 
   // copy the template's static files to outdir
-  var fromDir = path.join(templatePath, 'static');
+  var fromDir = path.join(templatePath, 'public');
   var staticFiles = fs.ls(fromDir, 3);
 
   staticFiles.forEach(fileName => {
@@ -597,7 +598,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     }
   });
 
-  data().each(function(doclet) {
+  data().each(doclet => {
     var url = helper.longnameToUrl[doclet.longname];
 
     if (url.indexOf('#') > -1) {
