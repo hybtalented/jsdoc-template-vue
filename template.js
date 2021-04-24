@@ -15,8 +15,9 @@ class Template {
   constructor(layout, bundle, manifest) {
     this.cache = {};
     this.renderer = createBundleRenderer(bundle, {
-      template: fs.readFileSync(layout),
+      template: fs.readFileSync(layout, 'utf-8'),
       runInNewContext: false,
+      inject: false,
       clientManifest: require(manifest)
     });
   }
