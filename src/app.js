@@ -3,11 +3,16 @@ import App from './App.vue';
 import createRouter from './router';
 import createStore from './store';
 import Comonents from './components';
+import default_logo from './assets/toast-ui.png';
 
 Vue.use(Comonents);
 export function createApp(state, view) {
   const router = createRouter();
   const store = createStore(state);
+
+  if (global.__INITIAL_STATE__) {
+    store.replaceState(global.__INITIAL_STATE__);
+  }
   const app = new Vue({
     router,
     store,
@@ -18,7 +23,7 @@ export function createApp(state, view) {
         view,
         env,
         logo: {
-          url: 'img/toast-ui.png',
+          url: default_logo,
           link: '',
           ...templates.logo
         },

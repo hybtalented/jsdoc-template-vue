@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Nav></Nav>
+    <Nav id="lnb"></Nav>
     <div id="resizer"></div>
 
     <div class="main" id="main">

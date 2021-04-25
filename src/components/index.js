@@ -23,7 +23,7 @@ export default {
     Vue.component('method', Method);
     Vue.component('params', Param);
     Vue.component('arguement', Arguement);
-    Vue.component('type', Type);
+    Vue.component('Type', Type);
     Vue.component('exceptions', Exceptions);
     Vue.component('returns', Returns);
     Vue.component('examples', Examples);

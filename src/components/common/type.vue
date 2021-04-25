@@ -1,7 +1,7 @@
 <template>
   <Fragment>
     <span v-for="(name, i) in names" :key="i" class="param-type">
-      <linkto :longname="name" :linkText="view.htmlsafe(name)"></linkto>
+      <linkto :longname="name" :linkText="name"></linkto>
     </span>
   </Fragment>
 </template>
@@ -14,10 +14,4 @@ export default {
 };
 </script>
 
-<style scope lang="less">
-.param-type :not(:first-child) {
-  &:after {
-    content: '|';
-  }
-}
-</style>
+<style scope lang="less"></style>

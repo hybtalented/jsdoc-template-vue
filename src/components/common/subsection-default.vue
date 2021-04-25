@@ -20,7 +20,7 @@
 <script>
 export default {
   props: {
-    doclet: Object
+    doclets: Array
   },
   inject: ['view']
 };

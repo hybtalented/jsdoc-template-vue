@@ -3,7 +3,7 @@
     <header>
       <ul v-if="children.length > 0">
         <li v-for="(t, i) in children" :key="i">
-          <ehtml :html="self.tutoriallink(t.name)"></ehtml>
+          <ehtml :html="view.tutoriallink(t.name)"></ehtml>
         </li>
       </ul>
 
@@ -50,7 +50,12 @@ export default {
     hasCodeTab() {
       return this.codeJs || this.codeHtml ? 'nav nav-tabs' : 'nav nav-tabs hidden';
     },
-    ...mapState({})
+    ...mapState({
+      isHtmlTutorial: state => state.isHtmlTutorial,
+      header: state => state.header,
+      children: state => state.children,
+      content: state => state.content
+    })
   },
   inject: ['view']
 };

@@ -478,6 +478,11 @@ footer {
 span {
   &.param-type {
     color: #aaa;
+    &:not(:first-child) {
+      &:after {
+        content: '|';
+      }
+    }
   }
   &.icon {
     font-size: 8pt;

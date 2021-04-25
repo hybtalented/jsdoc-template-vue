@@ -1,5 +1,5 @@
 <template>
-  <nav class="lnb" id="lnb">
+  <nav class="lnb">
     <div class="logo" :style="{ width: logo.width, height: logo.height }">
       <a v-if="logo.link" :href="logo.link" rel="noopener noreferrer" target="_blank">
         <img :src="logo.url" width="100%" height="100%" />

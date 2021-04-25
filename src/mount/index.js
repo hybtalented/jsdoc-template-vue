@@ -1,17 +1,18 @@
 /** ************* API-EXAMPLES TAB ***************/
 import $ from 'jquery';
+import PR from './prettify';
 
 var $apiTab = $('#api-tab');
 var $examplesTab = $('#examples-tab');
 
-function showLnbExamples() {
+export function showLnbExamples() {
   $apiTab.removeClass('selected');
   $examplesTab.addClass('selected');
   $('.lnb-api').addClass('hidden');
   $('.lnb-examples').removeClass('hidden');
 }
 
-function showLnbApi() {
+export function showLnbApi() {
   $examplesTab.removeClass('selected');
   $apiTab.addClass('selected');
   $('.lnb-api').removeClass('hidden');
@@ -124,7 +125,7 @@ function makeListItemHtml(item, inputText) {
     memberof = `<span class="group">${memberof}</span>`;
   }
 
-  itemText = itemText.replace(new RegExp(inputText, 'ig'), function(matched) {
+  itemText = itemText.replace(new RegExp(inputText, 'ig'), matched => {
     return `<strong>${matched}</strong>`;
   });
 
@@ -213,3 +214,62 @@ $lnb.find('.lnb-api').each(function initLnbApi() {
         .on('click', toggleSubNav);
     });
 });
+
+var source = document.getElementsByClassName('prettyprint source linenums');
+var i = 0;
+var lineNumber = 0;
+var lineId;
+var lines;
+var totalLines;
+var anchorHash;
+var lineNumberHTML = '';
+
+if (source && source[0]) {
+  anchorHash = document.location.hash.substring(1);
+  lines = source[0].getElementsByTagName('li');
+  totalLines = lines.length;
+
+  for (; i < totalLines; i++) {
+    lineNumber++;
+    lineId = `line${lineNumber}`;
+    lines[i].id = lineId;
+
+    lineNumberHTML = `<span class="number">${i + 1} : </span>`;
+
+    lines[i].insertAdjacentHTML('afterBegin', lineNumberHTML);
+    if (lineId === anchorHash) {
+      lines[i].className += ' selected';
+    }
+  }
+}
+
+export function prettyPrint() {
+  PR.prettyPrint();
+  var source = document.getElementsByClassName('prettyprint source linenums');
+  var i = 0;
+  var lineNumber = 0;
+  var lineId;
+  var lines;
+  var totalLines;
+  var anchorHash;
+  var lineNumberHTML = '';
+
+  if (source && source[0]) {
+    anchorHash = document.location.hash.substring(1);
+    lines = source[0].getElementsByTagName('li');
+    totalLines = lines.length;
+
+    for (; i < totalLines; i++) {
+      lineNumber++;
+      lineId = `line${lineNumber}`;
+      lines[i].id = lineId;
+
+      lineNumberHTML = `<span class="number">${i + 1} : </span>`;
+
+      lines[i].insertAdjacentHTML('afterBegin', lineNumberHTML);
+      if (lineId === anchorHash) {
+        lines[i].className += ' selected';
+      }
+    }
+  }
+}

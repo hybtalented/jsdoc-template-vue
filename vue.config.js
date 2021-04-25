@@ -48,10 +48,12 @@ const vueConfig = {
       config.externals(['vue', 'vue-router', 'vuex']);
     } else {
       ssr_plugin.use(new VueSSRClientPlugin());
-      config.plugin('copy').tap(args => {
-        args[0][0].to = path.join(config.output.get('path'), assetsDir);
-        return args;
-      });
+      if (config.plugins.has('copy')) {
+        config.plugin('copy').tap(args => {
+          args[0][0].to = path.join(config.output.get('path'), assetsDir);
+          return args;
+        });
+      }
     }
   }
 };

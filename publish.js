@@ -1,15 +1,14 @@
-var doop = require('jsdoc/util/doop');
-var env = require('jsdoc/env');
-var fs = require('jsdoc/fs');
-var helper = require('jsdoc/util/templateHelper');
-var logger = require('jsdoc/util/logger');
-var path = require('jsdoc/path');
+var doop = require('jsdoc/lib/jsdoc/util/doop');
+var env = require('jsdoc/lib/jsdoc/env');
+var fs = require('jsdoc/lib/jsdoc/fs');
+var helper = require('jsdoc/lib/jsdoc/util/templateHelper');
+var logger = require('jsdoc/lib/jsdoc/util/logger');
+var path = require('jsdoc/lib/jsdoc/path');
 var { taffy } = require('taffydb');
-var tutorial = require('jsdoc/tutorial');
+var tutorial = require('jsdoc/lib/jsdoc/tutorial');
 var util = require('util');
-var _ = require('underscore');
-const { Filter } = require('jsdoc/src/filter');
-const { Scanner } = require('jsdoc/src/scanner');
+const { Filter } = require('jsdoc/lib/jsdoc/src/filter');
+const { Scanner } = require('jsdoc/lib/jsdoc/src/scanner');
 var { Template } = require('./template');
 
 var { htmlsafe } = helper;
@@ -22,20 +21,16 @@ var view;
 
 var outdir = path.normalize(env.opts.destination);
 
-env.conf.templates = _.extend(
-  {
-    useCollapsibles: true
-  },
-  env.conf.templates
-);
+env.conf.templates = {
+  useCollapsibles: true,
+  ...env.conf.templates
+};
 
-env.conf.templates.tabNames = _.extend(
-  {
-    api: 'API',
-    tutorials: 'Examples'
-  },
-  env.conf.templates.tabNames
-);
+env.conf.templates.tabNames = {
+  api: 'API',
+  tutorials: 'Examples',
+  ...env.conf.templates.tabNames
+};
 
 // Set default useCollapsibles true
 env.conf.templates.useCollapsibles = env.conf.templates.useCollapsibles !== false;
@@ -547,15 +542,13 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   // copy the template's static files to outdir
   var fromDir = path.join(templatePath, 'template');
-  var staticFiles = fs.ls(fromDir, 3);
+  var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
 
-  staticFiles
-    .filter(name => !name.includes('vue-ssr'))
-    .forEach(fileName => {
-      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
-      fs.mkPath(toDir);
-      fs.copyFileSync(fileName, toDir);
-    });
+  staticFiles.forEach(fileName => {
+    var toDir = fs.toDir(fileName.replace(fromDir, outdir));
+    fs.mkPath(toDir);
+    fs.copyFileSync(fileName, toDir);
+  });
 
   // copy user-specified static files to outdir
   var staticFilePaths;
@@ -710,7 +703,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   if (env.opts.tutorials) {
     copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
   }
- 
+
   // TODO: move the tutorial functions to templateHelper.js
   async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
     var tutorialData = {
@@ -725,7 +718,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     };
 
     if (isHtmlTutorial) {
-      _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
+      //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
     } else {
       tutorialData.content = tutorial.parse();
     }

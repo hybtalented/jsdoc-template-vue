@@ -74,7 +74,6 @@ export default {
     paramsInfo() {
       let parentParam;
       let paramRegExp;
-      debugger;
       const paramsInfo = this.params
         .map(param => {
           if (!param) {

@@ -1,7 +1,7 @@
 <template>
   <Fragment>
     <dt>
-      <h4 class="name" id="<?js= id ?>">
+      <h4 class="name" :id="doclet.id">
         <ehtml :html="doclet.attribs + doclet.name + (doclet.signature ? doclet.signature : '')"></ehtml>
 
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
