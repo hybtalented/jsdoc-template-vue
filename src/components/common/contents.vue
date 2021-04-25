@@ -8,7 +8,7 @@
       <h3 class="subsection-title">Requires</h3>
       <ul>
         <li v-for="(r, i) in doclet.requires" :key="i">
-          <extracthtml :html="view.linkto(r, r)"></extracthtml>
+          <ehtml :html="view.linkto(r, r)"></ehtml>
         </li>
       </ul>
     </Fragment>
@@ -34,7 +34,7 @@
     <Fragment v-if="members && members.length && members.forEach">
       <h3 class="subsection-title">Members</h3>
       <dl>
-        <members v-for="(p, i) in members" :key="i" :doclet="p"></members>
+        <member v-for="(p, i) in members" :key="i" :doclet="p"></member>
       </dl>
     </Fragment>
     <Fragment v-if="methods && methods.length && methods.forEach">

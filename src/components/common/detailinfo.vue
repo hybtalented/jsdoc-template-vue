@@ -33,17 +33,17 @@
       </definition-section>
       <definition-section v-if="doclet.author && doclet.author.length" name="Author" classScope="tag-author">
         <li v-for="(a, i) in doclet.author" :key="i">
-          <extracthtml :html="view.resolveAuthorLinks(a)"></extracthtml>
+          <ehtml :html="view.resolveAuthorLinks(a)"></ehtml>
         </li>
       </definition-section>
       <definition-section v-if="doclet.copyright" name="Copyright" classScope="tag-copyright" ulClass="dummy">
         <li>
-          <extracthtml :html="doclet.copyright"></extracthtml>
+          <ehtml :html="doclet.copyright"></ehtml>
         </li>
       </definition-section>
       <definition-section v-if="doclet.license" name="License" classScope="tag-license" ulClass="dummy">
         <li>
-          <extracthtml :html="doclet.license"></extracthtml>
+          <ehtml :html="doclet.license"></ehtml>
         </li>
       </definition-section>
       <definition-section v-if="doclet.defaultvalue" name="Default Value" classScope="tag-default" ulClass="dummy">
@@ -56,7 +56,7 @@
       </definition-section>
       <definition-section v-if="doclet.tutorials && doclet.tutorials.length" name="Tutorials" classScope="tag-tutorial">
         <li v-for="(t, i) in doclet.tutorials" :key="i">
-          <extracthtml :html="view.tutoriallink(t)"></extracthtml>
+          <ehtml :html="view.tutoriallink(t)"></ehtml>
         </li>
       </definition-section>
       <definition-section v-if="doclet.see && doclet.see.length" name="See" classScope="tag-see">
@@ -66,7 +66,7 @@
       </definition-section>
       <definition-section v-if="doclet.todo && doclet.todo.length" name="To Do" classScope="tag-todo">
         <li v-for="(t, i) in doclet.todo" :key="i">
-          <extracthtml :html="t"></extracthtml>
+          <ehtml :html="t"></ehtml>
         </li>
       </definition-section>
     </dl>

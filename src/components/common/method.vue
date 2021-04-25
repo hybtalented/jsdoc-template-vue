@@ -2,10 +2,14 @@
   <Fragment>
     <dt>
       <h4 class="name" :id="doclet.id">
-        <template v-if="doclet.hideconstructor">
+        <Fragment v-if="doclet.hideconstructor">
           {{ name }}
-        </template>
-        <Fragment v-else> {{ doclet.kind === 'class' ? 'new ' : '' }} {{ doclet.attribs }} {{ doclet.name }}} {{ doclet.signature ? doclet.signature : '' }}</Fragment>
+        </Fragment>
+        <Fragment v-else>
+          {{ doclet.kind === 'class' ? 'new ' : '' }}
+          <ehtml :html="doclet.attribs + doclet.name"></ehtml>
+          <ehtml :html="doclet.signature"></ehtml>
+        </Fragment>
 
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
           <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
@@ -14,16 +18,16 @@
           </code>
         </div>
       </h4>
-      <p v-if="doclet.summary" class="summary">{{ doclet.summary }}</p>
+      <p v-if="doclet.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
     </dt>
     <dd>
       <div v-if="doclet.kind !== 'module' && doclet.description && !doclet.hideconstructor" class="description">
-        {{ doclet.description }}
+        <ehtml :html="doclet.description"></ehtml>
       </div>
       <Section v-if="doclet.augments && doclet.alias && doclet.alias.indexOf('module:') === 0" name="Extends">
         <arguement :doclet="doclet"></arguement>
       </Section>
-      <Section v-if="doclet.kind === 'event' && data.type && data.type.names" :name="Type">
+      <Section v-if="doclet.kind === 'event' && doclet.type && doclet.type.names" :name="Type">
         <ul>
           <li>
             <type :names="doclet.type.names"></type>
@@ -37,9 +41,11 @@
           </li>
         </ul>
       </Section>
-      <Section v-if="doclet.params && doclet.params.length && !doclet.hideconstructor" class="container-params" name="Parameters">
+
+      <div v-if="doclet.params && doclet.params.length && !doclet.hideconstructor" class="container-params">
+        <h5>Parameters:</h5>
         <params :params="doclet.params"></params>
-      </Section>
+      </div>
 
       <ListSection v-if="doclet.kind !== 'module' && doclet.requires && doclet.requires.length" name="Requires" :links="doclet.requires"></ListSection>
       <ListSection v-if="doclet.fires && doclet.fires.length" name="Fires" :links="doclet.fires"></ListSection>

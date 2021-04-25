@@ -24,7 +24,7 @@
         <h3>{{ membersName[name] }}</h3>
         <ul>
           <li v-for="(item, index) in member" :key="index">
-            <extracthtml :html="item.link"></extracthtml>
+            <ehtml :html="item.link"></ehtml>
             <button v-if="item.longname && nav.useCollapsibles" type="button" class="hidden toggle-subnav btn btn-link"><span class="glyphicon glyphicon-plus"></span></button>
             <SubNav :members="item.children" :id="item.id"></SubNav>
           </li>
@@ -33,13 +33,13 @@
     </Fragment>
     <Fragment v-if="nav.globals && nav.globals.length > 0">
       <div v-if="nav.globalTitleLink" class="lnb-api hidden">
-        <h3><extracthtml :html="nav.globalTitleLink" /></h3>
+        <h3><ehtml :html="nav.globalTitleLink" /></h3>
       </div>
       <div v-else class="lnb-api hidden">
         <h3>Global</h3>
         <ul>
           <li v-for="(g, i) in nav.globals" :key="i" :class="{ hidden: g.kind === 'typedef' }">
-            <extracthtml :html="g.link"></extracthtml>
+            <ehtml :html="g.link"></ehtml>
           </li>
         </ul>
       </div>
@@ -97,6 +97,9 @@ export default {
     },
     name() {
       return this.templates.name || this.package.name || this.title;
+    },
+    version() {
+      return this.package.version;
     },
     nav() {
       return this.view.nav;

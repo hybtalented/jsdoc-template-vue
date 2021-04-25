@@ -2,7 +2,7 @@
   <Fragment>
     <dt>
       <h4 class="name" id="<?js= id ?>">
-        <extracthtml :html="doclet.attribs + doclet.name + (doclet.signature ? doclet.signature : '')"></extracthtml>
+        <ehtml :html="doclet.attribs + doclet.name + (doclet.signature ? doclet.signature : '')"></ehtml>
 
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
           <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
@@ -11,14 +11,14 @@
       </h4>
 
       <p v-if="doclet.summary" class="summary">
-        <extracthtml :html="doclet.summary"> </extracthtml>
+        <ehtml :html="doclet.summary"> </ehtml>
       </p>
     </dt>
     <dd>
       <div v-if="doclet.description" class="description">
-        <extracthtml :html="doclet.description"></extracthtml>
+        <ehtml :html="doclet.description"></ehtml>
       </div>
-      <details :doclet="doclet"></details>
+      <detailinfo :doclet="doclet"></detailinfo>
       <list-section v-if="doclet.fires && doclet.fires.length" name="Fires" :links="doclet.fires"></list-section>
       <Section v-if="doclet.examples && doclet.examples.length" :name="`Example${doclet.examples.length > 1 ? 's' : ''}`">
         <examples :examples="doclet.examples"></examples>

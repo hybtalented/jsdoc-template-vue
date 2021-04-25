@@ -12,7 +12,7 @@
         </h4>
       </dt>
 
-      <dd v-if="item.summary"><extracthtml :html="item.summary"></extracthtml></dd>
+      <dd v-if="item.summary"><ehtml :html="item.summary"></ehtml></dd>
     </Fragment>
   </dl>
 </template>

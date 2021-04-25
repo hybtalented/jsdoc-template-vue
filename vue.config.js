@@ -21,36 +21,38 @@ const args = require('minimist')(rawArgv, {
     'verbose'
   ]
 });
+
+const assetsDir = 'static';
 /**
  * @type {import("@vue/cli-service").ProjectOptions}
  */
 const vueConfig = {
   publicPath: './',
+  outputDir: resolvePath('template'),
+  assetsDir,
   chainWebpack(config) {
-    const entry = config.entry('index');
     const { output } = config;
     const ssr_plugin = config.plugin('ssr');
+
     if (args.target === 'lib') {
-      entry.add(resolvePath('src/entry-server.js'));
       output.libraryExport('default');
       ssr_plugin.use(new VueSSRServerPlugin());
-
+      // don't optimize for server version
       config.optimization.splitChunks(false).minimize(false);
+
       // don't use babel-loader for ssr version
       config.module.rule('js').uses.delete('babel-loader');
 
       config.target('node').devtool('source-map');
 
-      config.plugin('extract-css').tap(args => {
-        args[0].filename = 'style.css';
-        return args;
-      });
       config.externals(['vue', 'vue-router', 'vuex']);
     } else {
-      entry.add(resolvePath('src/entry-client.js'));
       ssr_plugin.use(new VueSSRClientPlugin());
+      config.plugin('copy').tap(args => {
+        args[0][0].to = path.join(config.output.get('path'), assetsDir);
+        return args;
+      });
     }
-  },
-  outputDir: resolvePath('template')
+  }
 };
 module.exports = vueConfig;

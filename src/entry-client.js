@@ -1,5 +1,9 @@
-import { createApp } from './app';
+import './app';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+import './assets/prettify-jsdoc.css';
+import './assets/prettify-tomorrow.css';
+import './assets/tui-doc.less';
+import 'code-prettify';
 
-const { app } = createApp(window.__INITIAL_STATE__);
-
-app.$mount('#app');
+const { PR } = window;

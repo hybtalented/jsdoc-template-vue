@@ -1,12 +1,17 @@
 <template>
-  <extracthtml :html="view.linkto(longname, view.htmlsafe(linkText), cssClass, fragmentId)"></extracthtml>
+  <ehtml :html="view.linkto(longname, view.htmlsafe(linkText), cssClass, fragmentId)"></ehtml>
 </template>
 
 <script>
 export default {
   props: {
     longname: String,
-    linkText: String,
+    linkText: {
+      type: String,
+      default() {
+        return this.longname;
+      }
+    },
     cssClass: String,
     fragmentId: String
   },

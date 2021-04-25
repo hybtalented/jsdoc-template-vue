@@ -6,6 +6,7 @@ export default {
   },
   render(createElement) {
     const { html } = this;
+
     return objectExtends(this._ssrNode(html), createElement('div'));
   }
 };

@@ -546,14 +546,16 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   fs.mkPath(outdir);
 
   // copy the template's static files to outdir
-  var fromDir = path.join(templatePath, 'public');
+  var fromDir = path.join(templatePath, 'template');
   var staticFiles = fs.ls(fromDir, 3);
 
-  staticFiles.forEach(fileName => {
-    var toDir = fs.toDir(fileName.replace(fromDir, outdir));
-    fs.mkPath(toDir);
-    fs.copyFileSync(fileName, toDir);
-  });
+  staticFiles
+    .filter(name => !name.includes('vue-ssr'))
+    .forEach(fileName => {
+      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
+      fs.mkPath(toDir);
+      fs.copyFileSync(fileName, toDir);
+    });
 
   // copy user-specified static files to outdir
   var staticFilePaths;
@@ -708,13 +710,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   if (env.opts.tutorials) {
     copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
   }
-  function generateHtmlTutorialData(tutorial, filename, originalFileName) {
-    return {
-      codeHtml: htmlsafe($('div.code-html').html() || ''),
-      codeJs: htmlsafe($('script.code-js').html() || ''),
-      originalFileName: originalFileName
-    };
-  }
+ 
   // TODO: move the tutorial functions to templateHelper.js
   async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
     var tutorialData = {

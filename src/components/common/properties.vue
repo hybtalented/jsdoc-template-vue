@@ -21,11 +21,11 @@
         </td>
 
         <td v-if="props.hasAttributes" class="attributes">
-          <extracthtml :html="getAttr(prop)"></extracthtml>
+          <ehtml :html="getAttr(prop)"></ehtml>
         </td>
 
         <td v-if="hasDefault" class="default">
-          <extracthtml :html="typeof prop.defaultvalue !== 'undefined' ? view.htmlsafe(prop.defaultvalue) : ''"></extracthtml>
+          <ehtml :html="typeof prop.defaultvalue !== 'undefined' ? view.htmlsafe(prop.defaultvalue) : ''"></ehtml>
         </td>
 
         <td class="description last">

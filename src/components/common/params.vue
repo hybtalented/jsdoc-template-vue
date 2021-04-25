@@ -11,34 +11,32 @@
     </thead>
 
     <tbody>
-      <tr v-for="(param, index)in params" :key="index">
-        <template v-if="param">
+      <tr v-for="(param, index) in paramsInfo" :key="index">
+        <Fragment v-if="param">
           <td v-if="hasName" class="name">
             <code>{{ param.name }} </code>
           </td>
 
           <td class="type">
-            <template v-if="param.type && param.type.names">
-              <Type :names="param.type.names"></Type>
-            </template>
+            <Type v-if="param.type && param.type.names" :names="param.type.names"></Type>
           </td>
 
           <td v-if="hasAttributes" class="attributes">
-            <extracthtml :html="getAttr(param)"></extracthtml>
+            <ehtml :html="getAttr(param)"></ehtml>
           </td>
 
           <td v-if="hasDefault" class="default">
-            <extracthtml :html="param.defaultvalue && view.htmlsafe(param.defaultvalue)"></extracthtml>
+            <ehtml :html="param.defaultvalue && view.htmlsafe(param.defaultvalue)"></ehtml>
           </td>
 
           <td class="description last">
-            <extracthtml :html="param.description"></extracthtml>
-            <template v-if="param.subparams">
+            <ehtml :html="param.description"></ehtml>
+            <Fragment v-if="param.subparams">
+              <h6>Properties</h6>
               <params :params="param.subparams"></params>
-            </template>
-            <h6>Properties</h6>
+            </Fragment>
           </td>
-        </template>
+        </Fragment>
       </tr>
     </tbody>
   </table>
@@ -75,26 +73,26 @@ export default {
   computed: {
     paramsInfo() {
       let parentParam;
-      const paramsInfo = this.params.map(param => {
-        let paramRegExp;
-        if (!param) {
-          return null;
-        }
-
-        if (parentParam && parentParam.name && param.name) {
-          paramRegExp = new RegExp(`^(?:${parentParam.name}(?:\\[\\])*)\\.(.+)$`);
-
-          if (paramRegExp.test(param.name)) {
-            param.name = RegExp.$1;
-            parentParam.subparams = parentParam.subparams || [];
-            parentParam.subparams.push(param);
+      let paramRegExp;
+      debugger;
+      const paramsInfo = this.params
+        .map(param => {
+          if (!param) {
             return null;
           }
-        }
-        parentParam = Object.create(param);
 
-        return parentParam;
-      });
+          if (parentParam && parentParam.name && param.name) {
+            if (paramRegExp.test(param.name)) {
+              parentParam.subparams = parentParam.subparams || [];
+              parentParam.subparams.push(Object.create(param, { name: { value: RegExp.$1 } }));
+              return null;
+            }
+          }
+          parentParam = Object.create(param);
+          paramRegExp = new RegExp(`^(?:${parentParam.name}(?:\\[\\])*)\\.(.+)$`);
+          return parentParam;
+        })
+        .filter(param => param);
       return paramsInfo;
     },
     hasAttributes() {

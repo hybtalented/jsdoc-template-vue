@@ -10,7 +10,7 @@
     <footer>
       <img class="logo" :src="logo.url" :style="{ width: logo.width, height: logo.height }" />
       <div class="footer-text">
-        <extracthtml :html="footerText || 'NHN Entertainment. Frontend Development Lab'"></extracthtml>
+        <ehtml :html="footerText || 'NHN Entertainment. Frontend Development Lab'"></ehtml>
       </div>
     </footer>
   </div>
@@ -28,11 +28,7 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  font-size: 12px;
+  font-family: Helvetica Neue, Helvetica, Arial, Malgun gothic, '돋움', AppleSDGothicNeo;
 }
 </style>

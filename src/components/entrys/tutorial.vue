@@ -3,7 +3,7 @@
     <header>
       <ul v-if="children.length > 0">
         <li v-for="(t, i) in children" :key="i">
-          <extracthtml :html="self.tutoriallink(t.name)"></extracthtml>
+          <ehtml :html="self.tutoriallink(t.name)"></ehtml>
         </li>
       </ul>
 
@@ -25,18 +25,18 @@
         <iframe id="example-result" width="100%" height="800" frameborder="0" :src="'tutorials/' + originalFileName + '.html'"></iframe>
         <div id="example-js" class="hidden">
           <pre class="prettyprint source">
-            <extracthtml  :html="codeJs"></extracthtml>
+            <ehtml  :html="codeJs"></ehtml>
             </pre>
         </div>
         <div id="example-html" class="hidden">
           <pre class="prettyprint source">
-            <extracthtml :html="codeHtml"></extracthtml>
+            <ehtml :html="codeHtml"></ehtml>
             </pre>
         </div>
       </article>
     </Fragment>
     <article v-else class="readme">
-      <extracthtml :html="content"></extracthtml>
+      <ehtml :html="content"></ehtml>
     </article>
   </section>
 </template>
