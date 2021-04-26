@@ -3,14 +3,14 @@
     <section v-for="(doc, i) in docs" :key="i">
       <header>
         <h2>
-          <span v-if="doc.attribs" class="attribs"><ehtml :html="doc.attribs"></ehtml></span>
+          <attribs :doclet="doc" class="attribs"></attribs>
 
           <span v-if="doc.ancestors && doc.ancestors.length" class="ancestors">
             <ethml :html="doc.ancestors.join('')" />
           </span>
           {{ doc.name }}
           <sup v-if="doc.variation" class="variation"><ehtml :html="doc.variation"/></sup>
-          <ehtml v-if="doc.signature && !doc.hideconstructor" :html="doc.signature"></ehtml>
+          <method-signature :doclet="doc"></method-signature>
         </h2>
         <div v-if="doc.classdesc" class="class-description"><ehtml :html="doc.classdesc" /></div>
       </header>
@@ -21,8 +21,10 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import methodSignature from '../common/method-signature.vue';
 
 export default {
+  components: { methodSignature },
   computed: {
     ...mapGetters(['docs'])
   }

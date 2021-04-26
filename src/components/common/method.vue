@@ -3,12 +3,13 @@
     <dt>
       <h4 class="name" :id="doclet.id">
         <Fragment v-if="doclet.hideconstructor">
-          {{ name }}
+          {{ doclet.name }}
         </Fragment>
         <Fragment v-else>
           {{ doclet.kind === 'class' ? 'new ' : '' }}
-          <ehtml :html="doclet.attribs + doclet.name"></ehtml>
-          <ehtml :html="doclet.signature"></ehtml>
+          <attribs :doclet="doclet"></attribs>
+          {{ doclet.name }}
+          <method-signature :doclet="doclet"></method-signature>
         </Fragment>
 
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
@@ -30,7 +31,7 @@
       <Section v-if="doclet.kind === 'event' && doclet.type && doclet.type.names" :name="Type">
         <ul>
           <li>
-            <type :names="doclet.type.names"></type>
+            <type :type="doclet.type"></type>
           </li>
         </ul>
       </Section>
@@ -85,11 +86,6 @@ export default {
   props: {
     doclet: {
       type: Object
-    }
-  },
-  computed: {
-    title() {
-      return this.doclet.hideconstructor ? this.name : (this.doclet.kind === 'class' ? 'new ' : '') + this.doclet.attribs + this.name + (this.doclet.signature ? this.doclet.signature : '');
     }
   },
   inject: ['view']

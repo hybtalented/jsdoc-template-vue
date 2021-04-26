@@ -5,7 +5,7 @@ export default {
     html: String
   },
   render(createElement) {
-    const { html } = this;
+    const { html = '' } = this;
 
     return objectExtends(this._ssrNode(html), createElement('div'));
   }

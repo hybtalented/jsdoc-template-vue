@@ -8,7 +8,7 @@
       <h3 class="subsection-title">Requires</h3>
       <ul>
         <li v-for="(r, i) in doclet.requires" :key="i">
-          <ehtml :html="view.linkto(r, r)"></ehtml>
+          <linkto :longname="r" :linkText="r"></linkto>
         </li>
       </ul>
     </Fragment>
@@ -47,8 +47,7 @@
       <h3 class="subsection-title">Type Definitions</h3>
       <dl>
         <Fragment v-for="(e, i) in typedefs" :key="i">
-          <method v-if="e.signature" :doclet="e"></method>
-          <member v-else :doclet="e"></member>
+          <member :doclet="e"></member>
         </Fragment>
       </dl>
     </Fragment>

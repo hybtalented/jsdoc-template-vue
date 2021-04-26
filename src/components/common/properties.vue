@@ -17,7 +17,7 @@
         </td>
 
         <td class="type">
-          <type v-if="prop.type && prop.type.names" :names="prop.type.names"></type>
+          <type v-if="prop.type" :type="prop.type"></type>
         </td>
 
         <td v-if="props.hasAttributes" class="attributes">
@@ -29,7 +29,7 @@
         </td>
 
         <td class="description last">
-          {{ prop.description }}
+          <ehtml :html="prop.description"></ehtml>
           <Fragment v-if="prop.subprops">
             <h6>Properties</h6>
             <properties doclet="prop"></properties>

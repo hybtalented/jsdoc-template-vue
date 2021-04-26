@@ -10,6 +10,11 @@ import Properties from './common/properties.vue';
 import Contents from './common/contents.vue';
 import SubsectionDefault from './common/subsection-default.vue';
 import Member from './common/member.vue';
+import Attribs from './common/attribs.vue';
+import TypeSignature from './common/type-signature.vue';
+import AttribsSignature from './common/attribs-signature.vue';
+import ParamsSignature from './common/params-signature.vue';
+import ReturnsSignature from './common/returns-signature.vue';
 import ExtractHTML from './util/extracthtml';
 import Fragment from './util/fragment';
 import LinkTo from './util/linkto.vue';
@@ -24,6 +29,55 @@ export default {
       methods: {
         translate(str) {
           return (this.translations && (this.translations[str] || this.translations[str.toLowerCase()])) || str;
+        },
+        getAttribs(doclet) {
+          const attribs = [];
+          const d = doclet;
+          if (!d) {
+            return attribs;
+          }
+          if (d.isEnum) {
+            attribs.push('enum');
+          }
+          if (d.async) {
+            attribs.push('async');
+          }
+
+          if (d.generator) {
+            attribs.push('generator');
+          }
+
+          if (d.virtual) {
+            attribs.push('abstract');
+          }
+
+          if (d.access && d.access !== 'public') {
+            attribs.push(d.access);
+          }
+
+          if (d.scope && d.scope !== 'instance' && d.scope !== 'global') {
+            if (d.kind === 'function' || d.kind === 'member' || d.kind === 'constant') {
+              attribs.push(d.scope);
+            }
+          }
+
+          if (d.readonly === true) {
+            if (d.kind === 'member') {
+              attribs.push('readonly');
+            }
+          }
+
+          if (d.kind === 'constant') {
+            attribs.push('constant');
+          }
+
+          if (d.nullable === true) {
+            attribs.push('nullable');
+          } else if (d.nullable === false) {
+            attribs.push('non-null');
+          }
+
+          return attribs;
         }
       },
       computed: {
@@ -42,6 +96,11 @@ export default {
     Vue.component('detailinfo', DetailInfo);
     Vue.component('properties', Properties);
     Vue.component('contents', Contents);
+    Vue.component('attribs', Attribs);
+    Vue.component('AttribsSignature', AttribsSignature);
+    Vue.component('ParamsSignature', ParamsSignature);
+    Vue.component('ReturnsSignature', ReturnsSignature);
+    Vue.component('TypeSignature', TypeSignature);
     Vue.component('SubsectionDefault', SubsectionDefault);
     Vue.component('ehtml', ExtractHTML);
     Vue.component('Fragment', Fragment);

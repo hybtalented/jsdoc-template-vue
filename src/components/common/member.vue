@@ -2,8 +2,9 @@
   <Fragment>
     <dt>
       <h4 class="name" :id="doclet.id">
-        <ehtml :html="doclet.attribs + doclet.name + (doclet.signature ? doclet.signature : '')"></ehtml>
-
+        <attribs :doclet="doclet"></attribs>
+        {{ doclet.name }}
+        <type-signature v-if="doclet.type" :type="doclet.type" class></type-signature>
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
           <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
           <code><linkto :longname="doclet.meta.shortpath" :linkText="'line ' + doclet.meta.lineno" :fragmentId="'line' + doclet.meta.lineno"></linkto></code>

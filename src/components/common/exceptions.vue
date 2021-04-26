@@ -13,7 +13,7 @@
             Type
           </dt>
           <dd>
-            <type :names="data.type.names"></type>
+            <type :type="data.type"></type>
           </dd>
         </dl>
       </dt>
@@ -21,7 +21,7 @@
     </dl>
     <div v-else class="param-desc">
       <ehtml v-if="doclet.description" :html="doclet.description"></ehtml>
-      <type v-else-if="doclet.type && doclet.type.names" :names="doclet.type.names"></type>
+      <type v-else-if="doclet.type" :type="doclet.type"></type>
     </div>
   </Fragment>
 </template>

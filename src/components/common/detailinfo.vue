@@ -1,6 +1,6 @@
 <template>
   <Fragment>
-    <Section v-if="properties && properties.length && properties.forEach && !data.hideconstructor" name="Properties" titleClass="subsection-title">
+    <Section v-if="doclet.properties && doclet.properties.length && doclet.properties.forEach && !doclet.hideconstructor" name="Properties" titleClass="subsection-title">
       <properties :doclet="doclet"></properties>
     </Section>
     <dl class="details">

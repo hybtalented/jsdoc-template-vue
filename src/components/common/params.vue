@@ -18,7 +18,7 @@
           </td>
 
           <td class="type">
-            <Type v-if="param.type && param.type.names" :names="param.type.names"></Type>
+            <Type v-if="param.type" :type="param.type"></Type>
           </td>
 
           <td v-if="hasAttributes" class="attributes">

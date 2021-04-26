@@ -6,8 +6,7 @@
           <ehtml :html="view.tutoriallink(t.name)"></ehtml>
         </li>
       </ul>
-
-      <h2 v-header>{{ header }}</h2>
+      <h2 v-if="header">{{ header }}</h2>
     </header>
     <Fragment v-if="isHtmlTutorial">
       <ul id="example-nav" :class="hasCodeTab">
