@@ -1,14 +1,15 @@
-var doop = require('jsdoc/lib/jsdoc/util/doop');
-var env = require('jsdoc/lib/jsdoc/env');
-var fs = require('jsdoc/lib/jsdoc/fs');
-var helper = require('jsdoc/lib/jsdoc/util/templateHelper');
-var logger = require('jsdoc/lib/jsdoc/util/logger');
-var path = require('jsdoc/lib/jsdoc/path');
+/* eslint-disable import/no-unresolved */
+var doop = require('jsdoc/util/doop');
+var env = require('jsdoc/env');
+var fs = require('jsdoc/fs');
+var helper = require('jsdoc/util/templateHelper');
+var logger = require('jsdoc/util/logger');
+var path = require('jsdoc/path');
 var { taffy } = require('taffydb');
-var tutorial = require('jsdoc/lib/jsdoc/tutorial');
+var tutorial = require('jsdoc/tutorial');
 var util = require('util');
-const { Filter } = require('jsdoc/lib/jsdoc/src/filter');
-const { Scanner } = require('jsdoc/lib/jsdoc/src/scanner');
+const { Filter } = require('jsdoc/src/filter');
+const { Scanner } = require('jsdoc/src/scanner');
 var { Template } = require('./template');
 
 var { htmlsafe } = helper;
@@ -704,6 +705,12 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
   }
 
+  // remove tutorials recurrency
+  function normalizeTutorial(node) {
+    if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
+    node.children.forEach(normalizeTutorial);
+  }
+  normalizeTutorial(tutorials);
   // TODO: move the tutorial functions to templateHelper.js
   async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
     var tutorialData = {
@@ -720,14 +727,12 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     if (isHtmlTutorial) {
       //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
     } else {
-      tutorialData.content = tutorial.parse();
+      // yes, you can use {@link} in tutorials too!
+      tutorialData.content = helper.resolveLinks(tutorial.parse());
     }
 
     var tutorialPath = path.join(outdir, fileName);
     var html = await view.render('tutorial', tutorialData);
-
-    // yes, you can use {@link} in tutorials too!
-    html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
 
     fs.writeFileSync(tutorialPath, html, 'utf8');
   }

@@ -20,6 +20,18 @@ import LinkTo from './util/linkto.vue';
  */
 export default {
   install(Vue) {
+    Vue.mixin({
+      methods: {
+        translate(str) {
+          return (this.translations && (this.translations[str] || this.translations[str.toLowerCase()])) || str;
+        }
+      },
+      computed: {
+        translations() {
+          return this.$store.state.env.conf['jsdoc-template-vue'].translations;
+        }
+      }
+    });
     Vue.component('method', Method);
     Vue.component('params', Param);
     Vue.component('arguement', Arguement);

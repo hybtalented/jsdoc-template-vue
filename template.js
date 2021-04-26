@@ -13,11 +13,12 @@ class Template {
    * @param {string} filepath - Templates directory.
    */
   constructor(layout, bundle, manifest) {
-    this.cache = {};
+    this.cache = new Map();
     this.renderer = createBundleRenderer(bundle, {
       template: fs.readFileSync(layout, 'utf-8'),
       runInNewContext: false,
       inject: false,
+      cache: this.cache,
       clientManifest: require(manifest)
     });
   }

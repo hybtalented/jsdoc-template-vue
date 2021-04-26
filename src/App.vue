@@ -22,7 +22,7 @@ import Nav from './components/navigator/nav.vue';
 export default {
   name: 'App',
   components: { Nav },
-  inject: ['templates', 'package', 'logo']
+  inject: ['templates', 'package', 'logo', 'footerText']
 };
 </script>
 

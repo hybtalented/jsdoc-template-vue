@@ -18,6 +18,19 @@
       <input type="text" placeholder="Search" />
       <ul></ul>
     </div>
+
+    <ol v-if="examples" class="lnb-tab">
+      <li id="api-tab">
+        <a href="#"
+          ><h4>{{ translate('API') }}</h4></a
+        >
+      </li>
+      <li id="examples-tab">
+        <a href="#"
+          ><h4>{{ translate('Tutorials') }}</h4></a
+        >
+      </li>
+    </ol>
     <!-- Entrys -->
     <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = getMemberClass(name)}">
       <div :class="className" v-if="membersName[name] && member.length > 0">
@@ -44,26 +57,17 @@
         </ul>
       </div>
     </Fragment>
-
-    <ol v-if="examples" class="lnb-tab">
-      <li id="api-tab">
-        <a href="#"
-          ><h4>{{ templates.tabNames.api }}</h4></a
-        >
-      </li>
-      <li id="examples-tab">
-        <a href="#"
-          ><h4>{{ templates.tabNames.tutorials }}</h4></a
-        >
-      </li>
-    </ol>
   </nav>
 </template>
 <script>
 import SubNav from './subnav.vue';
 
 export default {
+  name: 'NavBar',
   components: { SubNav },
+  serverCacheKey() {
+    return 'default';
+  },
   provide() {
     return {
       membersName: this.membersName
@@ -92,11 +96,15 @@ export default {
         members: 'Members',
         methods: 'Methods',
         events: 'Events',
-        typedef: 'Typedef'
+        typedef: 'Typedef',
+        ...this.tranlations
       };
     },
+    examples() {
+      return this.members.tutorials && this.members.tutorials.length > 0;
+    },
     name() {
-      return this.templates.name || this.package.name || this.title;
+      return this.appName || this.package.name || this.title;
     },
     version() {
       return this.package.version;
@@ -108,7 +116,7 @@ export default {
       return this.nav.members;
     }
   },
-  inject: ['templates', 'package', 'logo', 'view']
+  inject: ['templates', 'package', 'logo', 'view', 'appName']
 };
 </script>
 

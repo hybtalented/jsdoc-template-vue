@@ -6,7 +6,7 @@ import './assets/tui-doc.less';
 import { createApp } from './app';
 import { showLnbApi, showLnbExamples, prettyPrint } from './mount';
 
-const { store } = createApp({}, {});
+const { store } = createApp({}, { env: {} });
 
 prettyPrint();
 if (!store.state.isTutorial) {

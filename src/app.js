@@ -18,6 +18,7 @@ export function createApp(state, view) {
     store,
     provide() {
       const { env, package: pkg } = this.$store.state;
+      const config = env.conf['jsdoc-template-vue'];
       const { templates } = env.conf;
       return {
         view,
@@ -25,10 +26,12 @@ export function createApp(state, view) {
         logo: {
           url: default_logo,
           link: '',
-          ...templates.logo
+          ...config.logo
         },
+        footerText: config.footerText,
         package: pkg,
-        templates
+        templates,
+        appName: config.appName
       };
     },
     render: h => h(App)
