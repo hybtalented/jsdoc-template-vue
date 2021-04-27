@@ -2,39 +2,33 @@
   <table class="params">
     <thead>
       <tr>
-        <th v-if="hasName">Name</th>
-        <th>Type</th>
-        <th v-if="hasAttributes">Attributes</th>
+        <th>Name</th>
+        <th v-if="hasType">Type</th>
         <th v-if="hasDefault">Default</th>
         <th class="last">Description</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr v-for="(param, index) in paramsInfo" :key="index">
+      <tr v-for="(param, index) in tparams" :key="index">
         <Fragment v-if="param">
-          <td v-if="hasName" class="name">
-            <code>{{ param.name }} </code>
+          <td class="name">
+            <code>{{ param.name }}</code>
           </td>
 
-          <td class="type">
-            <Type v-if="param.type" :type="param.type"></Type>
-          </td>
-
-          <td v-if="hasAttributes" class="attributes">
-            <ehtml :html="getAttr(param)"></ehtml>
+          <td v-if="hasType" class="type">
+            <Fragment v-if="param.constraint">
+              {{ param.constraint.operator }}&nbsp;
+              <Type :type="param.constraint"></Type>
+            </Fragment>
           </td>
 
           <td v-if="hasDefault" class="default">
-            <ehtml :html="param.defaultvalue && view.htmlsafe(param.defaultvalue)"></ehtml>
+            <Type :type="param.default"></Type>
           </td>
 
           <td class="description last">
             <ehtml :html="param.description"></ehtml>
-            <Fragment v-if="param.subparams">
-              <h6>Properties</h6>
-              <params :params="param.subparams"></params>
-            </Fragment>
           </td>
         </Fragment>
       </tr>
@@ -46,7 +40,7 @@
 export default {
   name: 'Params',
   props: {
-    params: {
+    tparams: {
       type: Array,
       default() {
         return [];
@@ -71,37 +65,11 @@ export default {
     }
   },
   computed: {
-    paramsInfo() {
-      let parentParam;
-      let paramRegExp;
-      const paramsInfo = this.params
-        .map(param => {
-          if (!param) {
-            return null;
-          }
-
-          if (parentParam && parentParam.name && param.name) {
-            if (paramRegExp.test(param.name)) {
-              parentParam.subparams = parentParam.subparams || [];
-              parentParam.subparams.push(Object.create(param, { name: { value: RegExp.$1 } }));
-              return null;
-            }
-          }
-          parentParam = Object.create(param);
-          paramRegExp = new RegExp(`^(?:${parentParam.name}(?:\\[\\])*)\\.(.+)$`);
-          return parentParam;
-        })
-        .filter(param => param);
-      return paramsInfo;
-    },
-    hasAttributes() {
-      return this.paramsInfo.some(param => param && (param.optional || param.nullable || param.variable));
-    },
-    hasName() {
-      return this.paramsInfo.some(param => param && param.name);
-    },
     hasDefault() {
-      return this.paramsInfo.some(param => param && typeof param.defaultvalue !== 'undefined');
+      return this.tparams.some(param => param && typeof param.default !== 'undefined');
+    },
+    hasType() {
+      return this.tparams.some(param => param && typeof param.constraint === 'object');
     }
   },
   inject: ['view']

@@ -3,10 +3,10 @@
     <thead>
       <tr>
         <th v-if="hasName">Name</th>
-        <th>Type</th>
-        <th v-if="hasAttributes">Attributes</th>
-        <th v-if="hasDefault">Default</th>
-        <th class="last">Description</th>
+        <th>{{ translate('Type') }}</th>
+        <th v-if="hasAttributes">{{ translate('Attributes') }}</th>
+        <th v-if="hasDefault">{{ translate('Default') }}</th>
+        <th class="last">{{ translate('Description') }}</th>
       </tr>
     </thead>
 
@@ -25,14 +25,14 @@
         </td>
 
         <td v-if="hasDefault" class="default">
-          <ehtml :html="typeof prop.defaultvalue !== 'undefined' ? view.htmlsafe(prop.defaultvalue) : ''"></ehtml>
+          <ehtml :html="typeof prop.defaultvalue === 'undefined' ? '' : view.htmlsafe(prop.defaultvalue)"></ehtml>
         </td>
 
         <td class="description last">
           <ehtml :html="prop.description"></ehtml>
           <Fragment v-if="prop.subprops">
             <h6>Properties</h6>
-            <properties :properties="props.subprops"></properties>
+            <properties :properties="prop.subprops"></properties>
           </Fragment>
         </td>
       </tr>

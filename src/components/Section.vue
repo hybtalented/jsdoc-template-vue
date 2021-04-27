@@ -1,6 +1,6 @@
 <template>
   <Fragment>
-    <h5 :class="titleClass">{{ name }}:</h5>
+    <h5 :class="titleClass">{{ translate(name) }}:</h5>
     <slot></slot>
   </Fragment>
 </template>

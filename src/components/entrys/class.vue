@@ -8,14 +8,15 @@
           <span v-if="doc.ancestors && doc.ancestors.length" class="ancestors">
             <ehtml :html="doc.ancestors.join('')" />
           </span>
-          {{ doc.name }}
+          <name-signature :doclet="doc"></name-signature>
           <sup v-if="doc.variation" class="variation"><ehtml :html="doc.variation"/></sup>
         </h2>
         <div v-if="doc.classdesc" class="class-description"><ehtml :html="doc.classdesc" /></div>
       </header>
       <article>
         <div class="container-overview">
-          <p v-if="doclet.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
+          <p v-if="doc.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
+          <tparam v-if="doc.tparams && doc.tparams.forEach"></tparam>
           <method :doclet="doc"></method>
         </div>
         <contents :doclet="doc"></contents>

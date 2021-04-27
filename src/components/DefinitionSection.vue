@@ -1,6 +1,6 @@
 <template>
   <Fragment>
-    <dt :class="classScope">{{ name }}:</dt>
+    <dt :class="classScope">{{ translate(name) }}:</dt>
 
     <dd :class="classScope">
       <ul :class="ulClass">

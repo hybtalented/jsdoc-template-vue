@@ -3,7 +3,7 @@
     <dt>
       <h4 class="name" :id="doclet.id">
         <attribs :doclet="doclet"></attribs>
-        {{ doclet.name }}
+        <name-signature :doclet="doclet"></name-signature>
         <type-signature v-if="doclet.type" :type="doclet.type" class></type-signature>
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
           <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
@@ -16,6 +16,7 @@
       </p>
     </dt>
     <dd>
+      <tparam v-if="doclet.tparams && doclet.tparams.forEach"></tparam>
       <div v-if="doclet.description" class="description">
         <ehtml :html="doclet.description"></ehtml>
       </div>

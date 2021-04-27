@@ -1,13 +1,14 @@
 {
   "name": "jsdoc-template-vue",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "npm run build-client && npm run build-server",
     "build-client": "vue-cli-service build --mode production --target app src/entry-client.js",
     "build-server": "vue-cli-service build --mode production --target lib --no-clean --formats commonjs src/entry-server.js",
     "lint": "vue-cli-service lint",
-    "doc": "jsdoc -c examples/jsdoc.json"
+    "doc": "jsdoc -c examples/jsdoc.json",
+    "prepublish": "npm run lint && npm run build"
   },
   "files": [
     "template/",
