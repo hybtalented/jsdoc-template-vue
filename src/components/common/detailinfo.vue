@@ -1,7 +1,7 @@
 <template>
   <Fragment>
     <Section v-if="doclet.properties && doclet.properties.length && doclet.properties.forEach && !doclet.hideconstructor" name="Properties" titleClass="subsection-title">
-      <properties :doclet="doclet"></properties>
+      <properties :properties="doclet.properties"></properties>
     </Section>
     <dl class="details">
       <definition-section v-if="doclet.version" name="Version" classScope="tag-version" ulClass="dummy">

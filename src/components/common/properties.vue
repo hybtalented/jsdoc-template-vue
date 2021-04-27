@@ -32,7 +32,7 @@
           <ehtml :html="prop.description"></ehtml>
           <Fragment v-if="prop.subprops">
             <h6>Properties</h6>
-            <properties doclet="prop"></properties>
+            <properties :properties="props.subprops"></properties>
           </Fragment>
         </td>
       </tr>
