@@ -1,7 +1,7 @@
 <template>
   <Fragment>
     <params-signature :params="params"></params-signature>
-    <returns-signature :returns="returns"></returns-signature>
+    <returns-signature v-if="returns && returns.length > 0" :returns="returns"></returns-signature>
   </Fragment>
 </template>
 

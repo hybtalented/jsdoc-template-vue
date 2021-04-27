@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'Types',
+  name: 'Type',
   props: {
     type: Object,
     typeClass: {

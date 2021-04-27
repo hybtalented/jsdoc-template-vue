@@ -6,7 +6,7 @@
           <attribs :doclet="doc" class="attribs"></attribs>
 
           <span v-if="doc.ancestors && doc.ancestors.length" class="ancestors">
-            <ethml :html="doc.ancestors.join('')" />
+            <ehtml :html="doc.ancestors.join('')" />
           </span>
           {{ doc.name }}
           <sup v-if="doc.variation" class="variation"><ehtml :html="doc.variation"/></sup>
@@ -21,10 +21,8 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import methodSignature from '../common/method-signature.vue';
 
 export default {
-  components: { methodSignature },
   computed: {
     ...mapGetters(['docs'])
   }

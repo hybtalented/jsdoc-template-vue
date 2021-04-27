@@ -4,8 +4,10 @@
     <span v-for="param in params" :key="param.name" class="param-name">
       {{ param.variable ? '...' : '' }}
       {{ param.name }}
-      <span v-slot="{ attributes = getSignatureAttributes(param) }" v-if="attributes.length > 0" class="signature-attributes">{{ attributes.join(',') }}</span>
-      <type :type="param.type"></type>
+      <Fragment v-slot="{ attributes = getSignatureAttributes(param) }">
+        <span v-if="attributes.length > 0" class="signature-attributes">{{ attributes.join(',') }}</span>
+      </Fragment>
+      <type-signature v-if="param.type" :type="param.type"></type-signature>
     </span>
     )
   </Fragment>

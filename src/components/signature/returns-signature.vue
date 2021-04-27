@@ -1,8 +1,12 @@
 <template>
-  <span class="type-signature" v-if="returns && retures.length > 0">
-    &rarr;
-    <attrib-signature :attribs="attribs" />
-    { <type-signature v-for="(ret, idx) in returns" :key="idx" :type="ret.type" class="type-name"></type-signature>}
+  <span class="type-signature">
+    &nbsp;:
+    <attribs-signature :attribs="attribs" />
+    {
+    <Fragment v-for="(ret, idx) in returns" :key="idx">
+      <type v-if="ret.type" :type="ret.type" class="type-name"></type>
+    </Fragment>
+    }
   </span>
 </template>
 
@@ -11,7 +15,6 @@ export default {
   props: {
     returns: Array
   },
-
   computed: {
     attribs() {
       var attribs = [];

@@ -7,6 +7,7 @@
 
 <script>
 export default {
+  name: 'TypeSignature',
   props: {
     type: Object
   }
