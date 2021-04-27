@@ -2,13 +2,11 @@
   <Fragment>
     <dt>
       <h4 class="name" :id="doclet.id">
-        <Fragment v-if="doclet.hideconstructor">
-          {{ doclet.name }}
-        </Fragment>
+        <name-signature v-if="doclet.hideconstructor" :doclet="doclet"></name-signature>
         <Fragment v-else>
           {{ doclet.kind === 'class' ? 'new ' : '' }}
           <attribs :doclet="doclet"></attribs>
-          {{ doclet.name }}
+          <name-signature :doclet="doclet"></name-signature>
           <method-signature :doclet="doclet"></method-signature>
         </Fragment>
 

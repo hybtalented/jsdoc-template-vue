@@ -241,11 +241,8 @@ li {
           .signature {
             font-size: 9pt;
           }
-          .type-signature {
+          &.type-signature {
             font-size: 9pt;
-            color: #31708f;
-            font-weight: normal;
-            word-break: break-all;
           }
         }
         dt .name {
@@ -478,6 +475,11 @@ footer {
   cursor: col-resize;
 }
 span {
+  &.type-signature {
+    color: #31708f;
+    font-weight: normal;
+    word-break: break-all;
+  }
   &.param-type {
     color: #aaa;
   }
@@ -491,7 +493,7 @@ span {
   &.param-name {
     &:not(:first-of-type) {
       &::before {
-        content: ',';
+        content: ', ';
       }
     }
   }

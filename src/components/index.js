@@ -11,6 +11,7 @@ import Contents from './common/contents.vue';
 import SubsectionDefault from './common/subsection-default.vue';
 import Member from './common/member.vue';
 import Attribs from './signature/attribs.vue';
+import NameSignature from './signature/name-signature.vue';
 import TypeSignature from './signature/type-signature.vue';
 import AttribsSignature from './signature/attribs-signature.vue';
 import ParamsSignature from './signature/params-signature.vue';
@@ -102,6 +103,7 @@ export default {
     Vue.component('ParamsSignature', ParamsSignature);
     Vue.component('ReturnsSignature', ReturnsSignature);
     Vue.component('MethodSignature', MethodSignature);
+    Vue.component('NameSignature', NameSignature);
     Vue.component('TypeSignature', TypeSignature);
     Vue.component('SubsectionDefault', SubsectionDefault);
     Vue.component('ehtml', ExtractHTML);

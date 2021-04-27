@@ -13,7 +13,17 @@
         </h2>
         <div v-if="doc.classdesc" class="class-description"><ehtml :html="doc.classdesc" /></div>
       </header>
-      <contents :doclet="doc"></contents>
+      <article>
+        <div class="container-overview">
+          <div v-if="doc.description" class="description"><ehtml :html="doc.description" /></div>
+          <detailinfo :doclet="doc"></detailinfo>
+          <Fragment v-if="doc.examples && doc.examples.length">
+            <h3>Example{{ doc.examples.length > 1 ? 's' : '' }}</h3>
+            <examples :examples="doc.examples"></examples>
+          </Fragment>
+        </div>
+        <contents :doclet="doc"></contents>
+      </article>
     </section>
   </Fragment>
 </template>

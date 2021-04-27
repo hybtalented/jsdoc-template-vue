@@ -1,5 +1,5 @@
 <template>
-  <Fragment>
+  <span>
     (
     <span v-for="param in params" :key="param.name" class="param-name">
       {{ param.variable ? '...' : '' }}
@@ -10,7 +10,7 @@
       <type-signature v-if="param.type" :type="param.type"></type-signature>
     </span>
     )
-  </Fragment>
+  </span>
 </template>
 
 <script>

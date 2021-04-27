@@ -1,5 +1,5 @@
 <template>
-  <article>
+  <Fragment>
     <Fragment v-if="doclet.augments && doclet.augments.length">
       <h3 class="subsection-title">Extends</h3>
       <augments :doclet="doclet"></augments>
@@ -59,7 +59,7 @@
         </Fragment>
       </dl>
     </Fragment>
-  </article>
+  </Fragment>
 </template>
 
 <script>

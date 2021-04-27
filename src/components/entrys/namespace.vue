@@ -13,7 +13,15 @@
         </h2>
         <div v-if="doc.classdesc" class="class-description"><ehtml :html="doc.classdesc" /></div>
       </header>
-      <contents :doclet="doc"></contents>
+      <article>
+        <div class="container-overview">
+          <div v-if="doc.description" class="description"><ehtml :html="doc.description"></ehtml></div>
+          <Fragment v-if="doc.modules">
+            <method v-for="(module, idx) in doc.modules" :key="idx" :doclet="module"></method>
+          </Fragment>
+        </div>
+        <contents :doclet="doc"></contents>
+      </article>
     </section>
   </Fragment>
 </template>

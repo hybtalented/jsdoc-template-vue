@@ -4,7 +4,9 @@
       <header>
         <h2>Global</h2>
       </header>
-      <contents :doclet="doc" isGlobalPage></contents>
+      <article>
+        <contents :doclet="doc" isGlobalPage></contents>
+      </article>
     </section>
   </Fragment>
 </template>

@@ -8,13 +8,23 @@
           <span v-if="doc.ancestors && doc.ancestors.length" class="ancestors">
             <ethml :html="doc.ancestors.join('')" />
           </span>
-          {{ doc.name }}
+          <name-signature :doclet="doc"></name-signature>
           <sup v-if="doc.variation" class="variation"><ehtml :html="doc.variation"/></sup>
-          <method-signature :doclet="doc"> </method-signature>
         </h2>
         <div v-if="doc.classdesc" class="class-description"><ehtml :html="doc.classdesc" /></div>
       </header>
-      <contents :doclet="doc"></contents>
+      <article>
+        <div class="container-overview">
+          <method v-if="doc.params" :doclet="doc"></method>
+          <Fragment v-else>
+            <div v-if="doc.description" class="description"><ehtml :html="doc.description"></ehtml></div>
+            <Fragment v-if="doc.modules">
+              <method v-for="(module, idx) in doc.modules" :key="idx" :doclet="module"></method>
+            </Fragment>
+          </Fragment>
+        </div>
+        <contents :doclet="doc"></contents>
+      </article>
     </section>
   </Fragment>
 </template>
