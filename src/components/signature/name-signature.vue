@@ -5,7 +5,7 @@
       &lt;
       <span v-for="tparam in tparams" :key="tparam.name" class="param-name">
         {{ tparam.name }}
-        <span v-if="tparam.constraint" class="type"> extends {{ tparam.constraint.operator }}<type :type="tparam.constraint"></type> </span>
+        <span v-if="tparam.constraint" class="type"> extends {{ tparam.constraint.operator }}&nbsp;<type :type="tparam.constraint"></type> </span>
         <span v-if="tparam.default"> =<type :type="tparam.default"></type> </span>
       </span>
       &gt;
