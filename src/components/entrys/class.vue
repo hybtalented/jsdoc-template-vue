@@ -15,8 +15,8 @@
       </header>
       <article>
         <div class="container-overview">
-          <p v-if="doc.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
-          <tparam v-if="doc.tparams && doc.tparams.forEach"></tparam>
+          <p v-if="doc.summary" class="summary"><ehtml :html="doc.summary"></ehtml></p>
+          <tparams v-if="doc.tparams && doc.tparams.length > 0" :tparams="tparams"></tparams>
           <method :doclet="doc"></method>
         </div>
         <contents :doclet="doc"></contents>

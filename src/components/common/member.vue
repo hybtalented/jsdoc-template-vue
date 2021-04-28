@@ -16,10 +16,10 @@
       </p>
     </dt>
     <dd>
-      <tparam v-if="doclet.tparams && doclet.tparams.forEach"></tparam>
       <div v-if="doclet.description" class="description">
         <ehtml :html="doclet.description"></ehtml>
       </div>
+      <tparams v-if="doclet.tparams && doclet.tparams.length > 0" :tparams="doclet.tparams"></tparams>
       <detailinfo :doclet="doclet"></detailinfo>
       <list-section v-if="doclet.fires && doclet.fires.length" name="Fires" :links="doclet.fires"></list-section>
       <Section v-if="doclet.examples && doclet.examples.length" :name="`Example${doclet.examples.length > 1 ? 's' : ''}`">

@@ -15,11 +15,11 @@
       </header>
       <article>
         <div class="container-overview">
-          <p v-if="doc.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
-          <tparam v-if="doc.tparams && doc.tparams.forEach"></tparam>
+          <p v-if="doc.summary" class="summary"><ehtml :html="doc.summary"></ehtml></p>
           <method v-if="doc.params" :doclet="doc"></method>
           <Fragment v-else>
             <div v-if="doc.description" class="description"><ehtml :html="doc.description"></ehtml></div>
+            <tparams v-if="doc.tparams && doc.tparams.length > 0" :tparams="doc.tparams"></tparams>
             <Fragment v-if="doc.modules">
               <method v-for="(module, idx) in doc.modules" :key="idx" :doclet="module"></method>
             </Fragment>

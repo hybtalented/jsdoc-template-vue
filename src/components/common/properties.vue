@@ -43,7 +43,7 @@
 <script>
 export default {
   name: 'Properties',
-  props: { doclet: Object },
+  props: { properties: Array },
   methods: {
     getAttr(param) {
       const attrs = [];
@@ -66,7 +66,7 @@ export default {
     props() {
       var parentProp = null;
       /* sort subprops under their parent props (like opts.classname) */
-      var props = (this.doclet.subprops || this.doclet.properties).map(prop => {
+      var props = this.properties.map(prop => {
         if (!prop) {
           return;
         }
@@ -88,7 +88,7 @@ export default {
 
     hasDefault() {
       /* determine if we need extra columns, "attributes" and "default" */
-      return this.props.some(prop => prop && typeof prop.defaultvalue !== 'undefined' && !this.doclet.isEnum);
+      return this.props.some(prop => prop && typeof prop.defaultvalue !== 'undefined');
     },
     hasName() {
       /* determine if we need extra columns, "attributes" and "default" */

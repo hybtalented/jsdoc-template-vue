@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th v-if="hasType">Type</th>
+        <th v-if="hasType">Extends</th>
         <th v-if="hasDefault">Default</th>
         <th class="last">Description</th>
       </tr>
@@ -24,7 +24,7 @@
           </td>
 
           <td v-if="hasDefault" class="default">
-            <Type :type="param.default"></Type>
+            <Type v-if="param.default" :type="param.default"></Type>
           </td>
 
           <td class="description last">
@@ -38,7 +38,7 @@
 
 <script>
 export default {
-  name: 'Params',
+  name: 'TypeParams',
   props: {
     tparams: {
       type: Array,

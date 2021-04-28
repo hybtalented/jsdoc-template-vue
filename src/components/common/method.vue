@@ -20,8 +20,10 @@
       <p v-if="doclet.summary" class="summary"><ehtml :html="doclet.summary"></ehtml></p>
     </dt>
     <dd>
-      <h5>{{ translate('Type Parameters') }}:</h5>
-      <tparam v-if="doclet.tparams && doclet.tparams.forEach"></tparam>
+      <div v-if="doclet.tparams && doclet.tparams.length > 0" class="container-params">
+        <h5>{{ translate('Type Parameters') }}:</h5>
+        <tparams :tparams="doclet.tparams"></tparams>
+      </div>
     </dd>
     <dd>
       <div v-if="doclet.kind !== 'module' && doclet.description && !doclet.hideconstructor" class="description">
