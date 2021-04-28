@@ -2,9 +2,6 @@
 
 module.exports = {
   root: true,
-  parserOptions: {
-    parser: 'babel-eslint'
-  },
   globals: {
     req: 'readonly',
     api: 'readonly',
@@ -44,9 +41,8 @@ module.exports = {
     'vars-on-top': 0,
     'no-shadow': 0,
     'no-shadow-restricted-names': 0,
-    'no-restricted-syntax': 0,
     'object-property-newline': 0,
-    'arrow-parens': ['error', 'as-needed'], //箭头函数参数括号
+    'arrow-parens': ['error', 'as-needed'], // 箭头函数参数括号
     'no-continue': 0,
     'no-nested-ternary': 0,
     'guard-for-in': 0,
@@ -63,7 +59,7 @@ module.exports = {
     'no-prototype-builtins': 0,
     'no-tabs': 1,
     'max-len': 0,
-    'object-shorthand': 0, //强制对象字面量缩写语法
+    'object-shorthand': 0, // 强制对象字面量缩写语法
     'no-var': 0,
     'no-plusplus': 0,
     'no-underscore-dangle': 0,
@@ -92,6 +88,6 @@ module.exports = {
       }
     ],
     // allow debugger during development
-     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
   }
 };
