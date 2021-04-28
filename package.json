@@ -68,7 +68,7 @@
   "peerDependencies": {
     "jsdoc": "^3.6.6"
   },
-  "description": "## Project setup ``` npm install ```",
+  "description": "A jsdoc template write by vue",
   "main": "publish.js",
   "directories": {
     "example": "examples"

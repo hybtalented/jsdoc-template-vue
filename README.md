@@ -1,6 +1,6 @@
 # jsdoc-template-vue
 
-This is jsdoc template write by vue template, the main UI part is base on [TUI JSDoc Template](https://www.npmjs.com/package/tui-jsdoc-template), and template renderer is rewrite by [Vue server renderer](https://www.npmjs.com/package/vue-server-render)
+This is jsdoc template write by vue, the main UI part is base on [TUI JSDoc Template](https://www.npmjs.com/package/tui-jsdoc-template), and template renderer is rewrite by [Vue server renderer](https://www.npmjs.com/package/vue-server-render)
 
 ## INSTALL
 
