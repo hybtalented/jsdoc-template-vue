@@ -49,7 +49,7 @@
         <h3><ehtml :html="nav.globalTitleLink" /></h3>
       </div>
       <div v-else class="lnb-api hidden">
-        <h3>Global</h3>
+        <h3>{{ translate('Global') }}</h3>
         <ul>
           <li v-for="(g, i) in nav.globals" :key="i" :class="{ hidden: g.kind === 'typedef' }">
             <ehtml :html="g.link"></ehtml>
@@ -97,7 +97,7 @@ export default {
         methods: 'Methods',
         events: 'Events',
         typedef: 'Typedef',
-        ...this.tranlations
+        ...this.translations
       };
     },
     examples() {

@@ -1,11 +1,11 @@
 <template>
   <Fragment>
     <Fragment v-if="doclet.augments && doclet.augments.length">
-      <h3 class="subsection-title">Extends</h3>
+      <h3 class="subsection-title">{{ translate('Extends') }}</h3>
       <augments :doclet="doclet"></augments>
     </Fragment>
     <Fragment v-if="doclet.requires && doclet.requires.length">
-      <h3 class="subsection-title">Requires</h3>
+      <h3 class="subsection-title">{{ translate('Requires') }}</h3>
       <ul>
         <li v-for="(r, i) in doclet.requires" :key="i">
           <linkto :longname="r" :linkText="r"></linkto>
@@ -15,36 +15,36 @@
 
     <Fragment v-if="!isGlobalPage">
       <Fragment v-if="classes && classes.length">
-        <h3 class="subsection-title">Classes</h3>
+        <h3 class="subsection-title">{{ translate('Classes') }}</h3>
         <subsection-default :doclets="classes"></subsection-default>
       </Fragment>
       <Fragment v-if="interfaces && interfaces.length">
-        <h3 class="subsection-title">Interfaces</h3>
+        <h3 class="subsection-title">{{ translate('Interfaces') }}</h3>
         <subsection-default :doclets="interfaces"></subsection-default>
       </Fragment>
       <Fragment v-if="mixins && mixins.length">
-        <h3 class="subsection-title">Mixins</h3>
+        <h3 class="subsection-title">{{ translate('Mixins') }}}</h3>
         <subsection-default :doclets="mixins"></subsection-default>
       </Fragment>
       <Fragment v-if="namespaces && namespaces.length">
-        <h3 class="subsection-title">Namespaces</h3>
+        <h3 class="subsection-title">{{ translate('Namespaces') }}</h3>
         <subsection-default :doclets="namespaces"></subsection-default>
       </Fragment>
     </Fragment>
     <Fragment v-if="members && members.length && members.forEach">
-      <h3 class="subsection-title">Members</h3>
+      <h3 class="subsection-title">{{ translate('Members') }}</h3>
       <dl>
         <member v-for="(p, i) in members" :key="i" :doclet="p"></member>
       </dl>
     </Fragment>
     <Fragment v-if="methods && methods.length && methods.forEach">
-      <h3 class="subsection-title">Methods</h3>
+      <h3 class="subsection-title">{{ translate('Methods') }}</h3>
       <dl>
         <method v-for="(m, i) in methods" :key="i" :doclet="m"></method>
       </dl>
     </Fragment>
     <Fragment v-if="typedefs && typedefs.length && typedefs.forEach">
-      <h3 class="subsection-title">Type Definitions</h3>
+      <h3 class="subsection-title">{{ translate('Type Definitions') }}</h3>
       <dl>
         <Fragment v-for="(e, i) in typedefs" :key="i">
           <member :doclet="e"></member>
@@ -52,7 +52,7 @@
       </dl>
     </Fragment>
     <Fragment v-if="events && events.length && events.forEach">
-      <h3 class="subsection-title">Events</h3>
+      <h3 class="subsection-title">{{ translate('Events') }}</h3>
       <dl>
         <Fragment v-for="(e, i) in events" :key="i">
           <method :doclet="e"></method>
