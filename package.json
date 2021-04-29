@@ -1,6 +1,6 @@
 {
   "name": "jsdoc-template-vue",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "npm run build-client && npm run build-server",
@@ -17,12 +17,6 @@
     "template.js",
     "vue.config.js"
   ],
-  "dependencies": {
-    "vue": "^2.6.12",
-    "vue-router": "^3.5.1",
-    "vue-server-renderer": "^2.6.12",
-    "vuex": "^3.6.2"
-  },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -66,7 +60,11 @@
     "not dead"
   ],
   "peerDependencies": {
-    "jsdoc": "^3.6.6"
+    "jsdoc": "^3.6.6",
+    "vue": "^2.6.12",
+    "vue-router": "^3.5.1",
+    "vue-server-renderer": "^2.6.12",
+    "vuex": "^3.6.2"
   },
   "description": "A jsdoc template write by vue",
   "main": "publish.js",
