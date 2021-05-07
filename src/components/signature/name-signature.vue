@@ -21,7 +21,6 @@ export default {
   },
   computed: {
     tparams() {
-      debugger;
       return this.doclet.tparams;
     }
   }

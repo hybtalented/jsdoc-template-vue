@@ -2,18 +2,6 @@
 
 module.exports = {
   root: true,
-  globals: {
-    req: 'readonly',
-    api: 'readonly',
-    Trace: 'readonly',
-    platform: 'readonly',
-    EC_INFO: 'readonly',
-    EC_DEBUG: 'readonly',
-    EC_WARN: 'readonly',
-    EC_ERROR: 'readonly',
-    EC_FATAL: 'readonly',
-    SaveTransResultTop: 'readonly'
-  },
   parserOptions: {
     ecmaVersion: 2020
   },

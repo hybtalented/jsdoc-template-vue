@@ -1,7 +1,7 @@
 import Method from './common/method.vue';
 import Param from './common/params.vue';
 import TypeParams from './common/tparams.vue';
-import Arguement from './common/arguement.vue';
+import Augments from './common/augments.vue';
 import Type from './common/type.vue';
 import Exceptions from './common/exceptions.vue';
 import Returns from './common/returns.vue';
@@ -92,7 +92,7 @@ export default {
     Vue.component('method', Method);
     Vue.component('params', Param);
     Vue.component('tparams', TypeParams);
-    Vue.component('arguement', Arguement);
+    Vue.component('augments', Augments);
     Vue.component('Type', Type);
     Vue.component('exceptions', Exceptions);
     Vue.component('returns', Returns);

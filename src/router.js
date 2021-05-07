@@ -10,6 +10,7 @@ import Module from './components/entrys/module.vue';
 import External from './components/entrys/external.vue';
 import Namespace from './components/entrys/namespace.vue';
 import Mixin from './components/entrys/mixin.vue';
+import Component from './components/entrys/component.vue';
 
 Vue.use(Router);
 
@@ -29,7 +30,8 @@ export default function createRouter() {
       { path: '/external', External },
       { path: '/interface', component: Interface },
       { path: '/source', component: Source },
-      { path: '/home', component: Home }
+      { path: '/home', component: Home },
+      { path: '/components', component: Component }
     ]
   });
 }
