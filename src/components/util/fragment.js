@@ -1,5 +1,3 @@
-import { objectExtends } from './util';
-
 export default {
   name: 'fragment',
   render(createElement) {
@@ -9,7 +7,12 @@ export default {
     } else {
       children = this.$children || [];
     }
-    // ssrRender
-    return objectExtends(this._ssrNode('', '', children), createElement('div'));
+    if (this._ssrNode) {
+      // ssr support render a empty string node with multi-root
+      const ssr_node = this._ssrNode('', '', children);
+      // vue component must return a VNode instance
+      Object.defineProperty(ssr_node, '__proto__', createElement('div'));
+      return ssr_node;
+    }
   }
 };
