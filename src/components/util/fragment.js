@@ -10,8 +10,9 @@ export default {
     if (this._ssrNode) {
       // ssr support render a empty string node with multi-root
       const ssr_node = this._ssrNode('', '', children);
+      const protoName = '__proto__';
       // vue component must return a VNode instance
-      Object.defineProperty(ssr_node, '__proto__', createElement('div'));
+      ssr_node[protoName] = createElement('div');
       return ssr_node;
     }
   }

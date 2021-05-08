@@ -9,6 +9,7 @@ import Examples from './common/examples.vue';
 import DetailInfo from './common/detailinfo.vue';
 import Properties from './common/properties.vue';
 import Contents from './common/contents.vue';
+import ComponentInfo from './common/componentinfo.vue';
 import SubsectionDefault from './common/subsection-default.vue';
 import Member from './common/member.vue';
 import Attribs from './signature/attribs.vue';
@@ -100,6 +101,7 @@ export default {
     Vue.component('detailinfo', DetailInfo);
     Vue.component('properties', Properties);
     Vue.component('contents', Contents);
+    Vue.component('ComponentInfo', ComponentInfo);
     Vue.component('attribs', Attribs);
     Vue.component('AttribsSignature', AttribsSignature);
     Vue.component('ParamsSignature', ParamsSignature);

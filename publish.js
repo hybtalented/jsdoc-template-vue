@@ -328,7 +328,6 @@ function copyRecursiveSync(src, dest) {
  */
 exports.publish = async function publish(taffyData, opts, tutorials) {
   data = taffyData;
-
   var conf = env.conf.templates || {};
   conf.default = conf.default || {};
   const templatePath = path.normalize(opts.template);
