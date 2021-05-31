@@ -14,12 +14,13 @@ class Template {
    */
   constructor(layout, bundle, manifest) {
     this.cache = new Map();
+    const clientManifest = typeof manifest === 'string' ? require(manifest) : manifest;
     this.renderer = createBundleRenderer(bundle, {
       template: fs.readFileSync(layout, 'utf-8'),
       runInNewContext: false,
       inject: false,
       cache: this.cache,
-      clientManifest: require(manifest)
+      clientManifest
     });
   }
 

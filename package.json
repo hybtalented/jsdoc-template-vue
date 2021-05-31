@@ -4,8 +4,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "npm run build-client && npm run build-server",
-    "build-client": "vue-cli-service build --mode production --target app src/entry-client.js",
-    "build-server": "vue-cli-service build --mode production --target lib --no-clean --formats commonjs src/entry-server.js",
+    "build-client": "vue-cli-service build --mode production --target app",
+    "build-server": "vue-cli-service build --mode production --target lib --no-clean --formats commonjs",
     "lint": "vue-cli-service lint",
     "doc": "jsdoc -c examples/jsdoc.json",
     "prepublishOnly": "npm run lint && npm run build"
@@ -17,12 +17,18 @@
     "template.js",
     "vue.config.js"
   ],
+  "vuePlugins": {
+    "service": [
+      "index"
+    ]
+  },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "babel-eslint": "^10.1.0",
     "bootstrap": "^3.0.0",
+    "catharsis": "^0.9.0",
     "code-prettify": "^0.1.0",
     "core-js": "^3.6.5",
     "eslint": "^6.0.0",
@@ -32,13 +38,18 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-vue": "^6.2.2",
+    "express": "^4.17.1",
     "jquery": "^3.6.0",
     "jsdoc": "^3.6.6",
     "less": "^3.1.1",
     "less-loader": "^4.1.0",
+    "lru-cache": "^6.0.0",
+    "memory-fs": "^0.5.0",
     "minimist": "^1.2.5",
     "popper.js": "^1.16.1",
     "prettier": "^1.19.1",
+    "route-cache": "^0.4.5",
+    "serve-favicon": "^2.5.0",
     "taffydb": "^2.6.2",
     "vue": "^2.6.0",
     "vue-router": "^3.5.1",
@@ -92,5 +103,6 @@
   "bugs": {
     "url": "https://github.com/hybtalented/jsdoc-template-vue/issues"
   },
-  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme"
+  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme",
+  "dependencies": {}
 }
