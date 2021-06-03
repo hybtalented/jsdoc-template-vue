@@ -2,10 +2,8 @@
   "name": "jsdoc-template-vue",
   "version": "0.1.6",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "npm run build-client && npm run build-server",
-    "build-client": "vue-cli-service build --mode production --target app",
-    "build-server": "vue-cli-service build --mode production --target lib --no-clean --formats commonjs",
+    "serve": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode client.prod --target app",
     "lint": "vue-cli-service lint",
     "doc": "jsdoc -c examples/jsdoc.json",
     "prepublishOnly": "npm run lint && npm run build"
@@ -103,6 +101,5 @@
   "bugs": {
     "url": "https://github.com/hybtalented/jsdoc-template-vue/issues"
   },
-  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme",
-  "dependencies": {}
+  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme"
 }
