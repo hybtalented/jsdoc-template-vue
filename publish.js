@@ -1,3 +1,5 @@
+/* eslint-disable global-require */
+/* eslint-disable import/no-self-import */
 /* eslint-disable import/no-unresolved */
 var doop = require('jsdoc/util/doop');
 var env = require('jsdoc/env');
@@ -9,13 +11,15 @@ var { taffy } = require('taffydb');
 var tutorial = require('jsdoc/tutorial');
 const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
+const CLIService = require('@vue/cli-service');
+const util = require('./util');
+
 var { Template } = require('./template');
 
 var { htmlsafe } = helper;
 var { linkto } = helper;
 var { resolveAuthorLinks } = helper;
 var hasOwnProp = Object.prototype.hasOwnProperty;
-
 var data;
 var view;
 
@@ -83,6 +87,10 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
+function copyFile(inFile, outFile) {
+  const content = fs.readFileSync(inFile, 'utf-8');
+  util.writeFile(outFile, content);
+}
 async function generate(file, title, docs, filename, _resoveLinks) {
   var docData;
   var html;
@@ -104,7 +112,7 @@ async function generate(file, title, docs, filename, _resoveLinks) {
     html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
   }
 
-  fs.writeFileSync(outpath, html, 'utf8');
+  util.writeFile(outpath, html, 'utf8');
 }
 
 async function generateSourceFiles(sourceFiles, enc) {
@@ -316,7 +324,7 @@ function copyRecursiveSync(src, dest) {
       });
     } else {
       contents = fs.readFileSync(src);
-      fs.writeFileSync(dest, contents);
+      util.writeFile(dest, contents);
     }
   }
 }
@@ -329,16 +337,16 @@ function copyRecursiveSync(src, dest) {
 exports.publish = async function publish(taffyData, opts, tutorials) {
   data = taffyData;
   var conf = env.conf.templates || {};
+  const templateConf = env.conf['jsdoc-template-vue'];
   conf.default = conf.default || {};
   const templatePath = path.normalize(opts.template);
   // set up templating
-
+  const layoutFile = conf.default.layoutFile ? path.getResourcePath(path.dirname(conf.default.layoutFile), path.basename(conf.default.layoutFile)) : path.join(templatePath, 'layout.html');
   view = new Template(
-    conf.default.layoutFile ? path.getResourcePath(path.dirname(conf.default.layoutFile), path.basename(conf.default.layoutFile)) : path.join(templatePath, 'layout.html'),
-    conf.bundleFile ? path.getResourcePath(path.dirname(conf.bundleFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json'),
-    conf.manifestFile ? path.getResourcePath(path.dirname(conf.manifestFile)) : path.join(templatePath, 'template/vue-ssr-client-manifest.json')
+    layoutFile,
+    templateConf.bundleFile ? path.getResourcePath(path.dirname(templateConf.bundleFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json'),
+    templateConf.manifestFile ? path.getResourcePath(path.dirname(templateConf.manifestFile)) : path.join(templatePath, 'template/vue-ssr-client-manifest.json')
   );
-
   // claim some special filenames in advance, so the All-Powerful Overseer of Filename Uniqueness
   // doesn't try to hand them out later
   var indexUrl = helper.getUniqueFilename('index');
@@ -397,41 +405,10 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   fs.mkPath(outdir);
 
-  // copy the template's static files to outdir
-  var fromDir = path.join(templatePath, 'template');
-  var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
-
-  staticFiles.forEach(fileName => {
-    var toDir = fs.toDir(fileName.replace(fromDir, outdir));
-    fs.mkPath(toDir);
-    fs.copyFileSync(fileName, toDir);
-  });
-
   // copy user-specified static files to outdir
   var staticFilePaths;
   var staticFileFilter;
   var staticFileScanner;
-  if (conf.default.staticFiles) {
-    // The canonical property name is `include`. We accept `paths` for backwards compatibility
-    // with a bug in JSDoc 3.2.x.
-    staticFilePaths = conf.default.staticFiles.include || conf.default.staticFiles.paths || [];
-    staticFileFilter = new Filter(conf.default.staticFiles);
-    staticFileScanner = new Scanner();
-
-    staticFilePaths.forEach(filePath => {
-      var extraStaticFiles;
-      const absoluteFilePath = path.resolve(env.pwd, filePath);
-      extraStaticFiles = staticFileScanner.scan([absoluteFilePath], 10, staticFileFilter);
-
-      extraStaticFiles.forEach(fileName => {
-        var sourcePath = fs.toDir(absoluteFilePath);
-        var toDir = fs.toDir(fileName.replace(sourcePath, outdir));
-        fs.mkPath(toDir);
-        fs.copyFileSync(fileName, toDir);
-      });
-    });
-  }
-
   if (sourceFilePaths.length) {
     sourceFiles = shortenPaths(sourceFiles, path.commonPrefix(sourceFilePaths));
   }
@@ -480,19 +457,8 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   attachModuleSymbols(find({ longname: { left: 'module:' } }), members.modules);
 
-  // generate the pretty-printed source files first so other pages can link to them
-  if (outputSourceFiles) {
-    await generateSourceFiles(sourceFiles, opts.encoding);
-  }
-
-  if (members.globals.length) {
-    await generate('global', 'Global', [{ kind: 'globalobj' }], globalUrl);
-  }
-
   // index page displays information from package.json
   var packages = find({ kind: 'package' });
-
-  await generate('home', 'Home', packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]), indexUrl);
 
   // set up the lists that we'll use to generate pages
   var classes = taffy(members.classes);
@@ -501,90 +467,156 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var mixins = taffy(members.mixins);
   var externals = taffy(members.externals);
   var interfaces = taffy(members.interfaces);
+  async function generateAllFile() {
+    // copy the template's static files to outdir
+    var fromDir = path.join(templatePath, 'template');
+    var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
 
-  await Promise.all(
-    Object.keys(helper.longnameToUrl).map(async longname => {
-      var myModules = helper.find(modules, { longname: longname });
-      if (myModules.length) {
-        await generate('module', `Module: ${myModules[0].name}`, myModules, helper.longnameToUrl[longname]);
-      }
+    staticFiles.forEach(fileName => {
+      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
+      fs.mkPath(toDir);
+      copyFile(fileName, toDir);
+    });
+    if (conf.default.staticFiles) {
+      // The canonical property name is `include`. We accept `paths` for backwards compatibility
+      // with a bug in JSDoc 3.2.x.
+      staticFilePaths = conf.default.staticFiles.include || conf.default.staticFiles.paths || [];
+      staticFileFilter = new Filter(conf.default.staticFiles);
+      staticFileScanner = new Scanner();
 
-      var myClasses = helper.find(classes, { longname: longname });
-      if (myClasses.length) {
-        await generate('class', `Class: ${myClasses[0].name}`, myClasses, helper.longnameToUrl[longname]);
-      }
+      staticFilePaths.forEach(filePath => {
+        var extraStaticFiles;
+        const absoluteFilePath = path.resolve(env.pwd, filePath);
+        extraStaticFiles = staticFileScanner.scan([absoluteFilePath], 10, staticFileFilter);
 
-      var myNamespaces = helper.find(namespaces, { longname: longname });
-      if (myNamespaces.length) {
-        await generate('namespace', `Namespace: ${myNamespaces[0].name}`, myNamespaces, helper.longnameToUrl[longname]);
-      }
-
-      var myMixins = helper.find(mixins, { longname: longname });
-      if (myMixins.length) {
-        await generate('mixin', `Mixin: ${myMixins[0].name}`, myMixins, helper.longnameToUrl[longname]);
-      }
-
-      var myExternals = helper.find(externals, { longname: longname });
-      if (myExternals.length) {
-        await generate('external', `External: ${myExternals[0].name}`, myExternals, helper.longnameToUrl[longname]);
-      }
-
-      var myInterfaces = helper.find(interfaces, { longname: longname });
-      if (myInterfaces.length) {
-        await generate('interface', `Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
-      }
-    })
-  );
-
-  if (env.opts.tutorials) {
-    copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
-  }
-
-  // remove tutorials recurrency
-  function normalizeTutorial(node) {
-    if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
-    node.children.forEach(normalizeTutorial);
-  }
-  normalizeTutorial(tutorials);
-  // TODO: move the tutorial functions to templateHelper.js
-  async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
-    var tutorialData = {
-      docs: null, // If there is no "docs" prop, Erros in layout.tmpl. (For left-nav member listing control)
-      isTutorial: true,
-      env: env,
-      title: title,
-      header: tutorial.title,
-      children: tutorial.children,
-      isHtmlTutorial: isHtmlTutorial,
-      package: find({ kind: 'package' })[0]
-    };
-
-    if (isHtmlTutorial) {
-      //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
-    } else {
-      // yes, you can use {@link} in tutorials too!
-      tutorialData.content = helper.resolveLinks(tutorial.parse());
+        extraStaticFiles.forEach(fileName => {
+          var sourcePath = fs.toDir(absoluteFilePath);
+          var toDir = fs.toDir(fileName.replace(sourcePath, outdir));
+          fs.mkPath(toDir);
+          copyFile(fileName, toDir);
+        });
+      });
     }
 
-    var tutorialPath = path.join(outdir, fileName);
-    var html = await view.render('tutorial', tutorialData);
+    // generate the pretty-printed source files first so other pages can link to them
+    if (outputSourceFiles) {
+      await generateSourceFiles(sourceFiles, opts.encoding);
+    }
 
-    fs.writeFileSync(tutorialPath, html, 'utf8');
-  }
+    if (members.globals.length) {
+      await generate('global', 'Global', [{ kind: 'globalobj' }], globalUrl);
+    }
+    await generate('home', 'Home', packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]), indexUrl);
 
-  // tutorials can have only one parent so there is no risk for loops
-  async function saveChildren(node) {
     await Promise.all(
-      node.children.map(async child => {
-        var originalFileName = child.name;
-        var isHtmlTutorial = child.type === tutorial.TYPES.HTML;
-        var title = `Tutorial: ${child.title}`;
-        var fileName = helper.tutorialToUrl(child.name);
+      Object.keys(helper.longnameToUrl).map(async longname => {
+        var myModules = helper.find(modules, { longname: longname });
+        if (myModules.length) {
+          await generate('module', `Module: ${myModules[0].name}`, myModules, helper.longnameToUrl[longname]);
+        }
 
-        await generateTutorial(title, child, fileName, originalFileName, isHtmlTutorial);
-        await saveChildren(child);
+        var myClasses = helper.find(classes, { longname: longname });
+        if (myClasses.length) {
+          await generate('class', `Class: ${myClasses[0].name}`, myClasses, helper.longnameToUrl[longname]);
+        }
+
+        var myNamespaces = helper.find(namespaces, { longname: longname });
+        if (myNamespaces.length) {
+          await generate('namespace', `Namespace: ${myNamespaces[0].name}`, myNamespaces, helper.longnameToUrl[longname]);
+        }
+
+        var myMixins = helper.find(mixins, { longname: longname });
+        if (myMixins.length) {
+          await generate('mixin', `Mixin: ${myMixins[0].name}`, myMixins, helper.longnameToUrl[longname]);
+        }
+
+        var myExternals = helper.find(externals, { longname: longname });
+        if (myExternals.length) {
+          await generate('external', `External: ${myExternals[0].name}`, myExternals, helper.longnameToUrl[longname]);
+        }
+
+        var myInterfaces = helper.find(interfaces, { longname: longname });
+        if (myInterfaces.length) {
+          await generate('interface', `Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
+        }
       })
     );
+
+    if (env.opts.tutorials) {
+      copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
+    }
+
+    // remove tutorials recurrency
+    function normalizeTutorial(node) {
+      if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
+      node.children.forEach(normalizeTutorial);
+    }
+    normalizeTutorial(tutorials);
+    // TODO: move the tutorial functions to templateHelper.js
+    async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
+      var tutorialData = {
+        docs: null, // If there is no "docs" prop, Erros in layout.tmpl. (For left-nav member listing control)
+        isTutorial: true,
+        env: env,
+        title: title,
+        header: tutorial.title,
+        children: tutorial.children,
+        isHtmlTutorial: isHtmlTutorial,
+        package: find({ kind: 'package' })[0]
+      };
+
+      if (isHtmlTutorial) {
+        //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
+      } else {
+        // yes, you can use {@link} in tutorials too!
+        tutorialData.content = helper.resolveLinks(tutorial.parse());
+      }
+
+      var tutorialPath = path.join(outdir, fileName);
+      var html = await view.render('tutorial', tutorialData);
+
+      util.writeFile(tutorialPath, html, 'utf8');
+    }
+
+    // tutorials can have only one parent so there is no risk for loops
+    async function saveChildren(node) {
+      await Promise.all(
+        node.children.map(async child => {
+          var originalFileName = child.name;
+          var isHtmlTutorial = child.type === tutorial.TYPES.HTML;
+          var title = `Tutorial: ${child.title}`;
+          var fileName = helper.tutorialToUrl(child.name);
+
+          await generateTutorial(title, child, fileName, originalFileName, isHtmlTutorial);
+          await saveChildren(child);
+        })
+      );
+    }
+    await saveChildren(tutorials);
   }
-  await saveChildren(tutorials);
+  if (templateConf.server) {
+    const cliService = new CLIService(templatePath);
+    util.setup({
+      onmessage: async msg => {
+        switch (msg.type) {
+          case 'update':
+            if (msg.bundle && msg.manifest) {
+              view = new Template(layoutFile, msg.bundle, msg.manifest);
+              await generateAllFile();
+            }
+            break;
+          default:
+            throw new Error(`unknow message type ${msg.type}: ${JSON.stringify(msg)}`);
+        }
+        return true;
+      }
+    });
+    cliService.run('serve', {
+      mode: 'dev',
+      port: templateConf.port,
+      host: templateConf.host
+    });
+  } else {
+    await generateAllFile();
+  }
 };

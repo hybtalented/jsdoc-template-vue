@@ -1,4 +1,5 @@
-/* eslint-disable import/no-dynamic-require,global-require */
+/* eslint-disable global-require,import/no-dynamic-require */
+
 /**
  * Wrapper for underscore's template utility to allow loading templates from files.
  * @module jsdoc/template
