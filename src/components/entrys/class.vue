@@ -15,7 +15,6 @@
       </header>
       <article>
         <div class="container-overview">
-          <tparams v-if="doc.tparams && doc.tparams.length > 0" :tparams="tparams"></tparams>
           <method :doclet="doc"></method>
         </div>
         <contents :doclet="doc"></contents>

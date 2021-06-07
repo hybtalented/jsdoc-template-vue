@@ -23,7 +23,7 @@ var hasOwnProp = Object.prototype.hasOwnProperty;
 var data;
 var view;
 
-var outdir = path.normalize(env.opts.destination);
+let outdir = path.normalize(env.opts.destination);
 
 env.conf.templates = {
   useCollapsibles: true,
@@ -87,10 +87,6 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
-function copyFile(inFile, outFile) {
-  const content = fs.readFileSync(inFile, 'utf-8');
-  util.writeFile(outFile, content);
-}
 async function generate(file, title, docs, filename, _resoveLinks) {
   var docData;
   var html;
@@ -308,23 +304,19 @@ function buildNav(members) {
  * @param {string} dest The path to the new copy.
  */
 function copyRecursiveSync(src, dest) {
-  var contents;
   var srcExists = fs.existsSync(src);
-  var destExists = fs.existsSync(dest);
   var stats = srcExists && fs.statSync(src);
   var isDirectory = srcExists && stats.isDirectory();
 
   if (srcExists) {
     if (isDirectory) {
-      if (!destExists) {
-        fs.mkdirSync(dest);
-      }
       fs.readdirSync(src).forEach(childItemName => {
         copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
       });
     } else {
-      contents = fs.readFileSync(src);
-      util.writeFile(dest, contents);
+      var toDir = fs.toDir(dest);
+      util.mkPath(toDir);
+      util.copyFile(src, toDir, { originFS: fs });
     }
   }
 }
@@ -439,27 +431,16 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   });
 
   var members = helper.getMembers(data);
-
   members.tutorials = tutorials.children;
-
+  const nav = buildNav(members);
   // output pretty-printed source files by default
   var outputSourceFiles = !!(conf.default && conf.default.outputSourceFiles !== false);
-
-  // add template helpers
-  view.find = find;
-  view.linkto = linkto;
-  view.resolveAuthorLinks = resolveAuthorLinks;
-  view.tutoriallink = tutoriallink;
-  view.htmlsafe = htmlsafe;
-  view.outputSourceFiles = outputSourceFiles;
-  // once for all
-  view.nav = buildNav(members);
 
   attachModuleSymbols(find({ longname: { left: 'module:' } }), members.modules);
 
   // index page displays information from package.json
   var packages = find({ kind: 'package' });
-
+  util.setup({ publicPath: outdir });
   // set up the lists that we'll use to generate pages
   var classes = taffy(members.classes);
   var modules = taffy(members.modules);
@@ -468,14 +449,23 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var externals = taffy(members.externals);
   var interfaces = taffy(members.interfaces);
   async function generateAllFile() {
+    // add template helpers
+    view.find = find;
+    view.linkto = linkto;
+    view.resolveAuthorLinks = resolveAuthorLinks;
+    view.tutoriallink = tutoriallink;
+    view.htmlsafe = htmlsafe;
+    view.outputSourceFiles = outputSourceFiles;
+    // once for all
+    view.nav = nav;
     // copy the template's static files to outdir
     var fromDir = path.join(templatePath, 'template');
     var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
 
     staticFiles.forEach(fileName => {
       var toDir = fs.toDir(fileName.replace(fromDir, outdir));
-      fs.mkPath(toDir);
-      copyFile(fileName, toDir);
+      util.mkPath(toDir);
+      util.copyFile(fileName, toDir, { originFS: fs });
     });
     if (conf.default.staticFiles) {
       // The canonical property name is `include`. We accept `paths` for backwards compatibility
@@ -492,8 +482,8 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
         extraStaticFiles.forEach(fileName => {
           var sourcePath = fs.toDir(absoluteFilePath);
           var toDir = fs.toDir(fileName.replace(sourcePath, outdir));
-          fs.mkPath(toDir);
-          copyFile(fileName, toDir);
+          util.mkPath(toDir);
+          util.copyFile(fileName, toDir, { originFS: fs });
         });
       });
     }
@@ -601,6 +591,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
         switch (msg.type) {
           case 'update':
             if (msg.bundle && msg.manifest) {
+              outdir = msg.outdir;
               view = new Template(layoutFile, msg.bundle, msg.manifest);
               await generateAllFile();
             }

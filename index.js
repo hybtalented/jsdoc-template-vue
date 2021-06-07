@@ -1,25 +1,32 @@
 /* eslint-disable no-console */
 const CLIService = require('@vue/cli-service');
-
+const path = require('path');
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 const VueSSRClientPlugin = require('vue-server-renderer/client-plugin');
 const util = require('./util');
+
+let outputDir = '';
+const readFile = file => {
+  return util.readFile(path.join(outputDir, file));
+};
 
 const compiler_finish_callback = compile_stats => {
   const stats = compile_stats.toJson();
   stats.errors.forEach(err => console.error(err));
   stats.warnings.forEach(err => console.warn(err));
-  if (stats.errors.length) return;
+  if (stats.errors.length) return Promise.resolve(false);
   try {
-    const clientManifest = JSON.parse(util.readFile('vue-ssr-client-manifest.json'));
-    const serverBundle = JSON.parse(util.readFile('vue-ssr-server-bundle.json'));
+    const clientManifest = JSON.parse(readFile('vue-ssr-client-manifest.json'));
+    const serverBundle = JSON.parse(readFile('vue-ssr-server-bundle.json'));
     return util.sendMessage({
       type: 'update',
       manifest: clientManifest,
-      bundle: serverBundle
+      bundle: serverBundle,
+      outdir: outputDir
     });
   } catch (ex) {
     console.log('unexpect error occur when update ssr manifest and bundle， err', ex);
+    return Promise.resolve(false);
   }
 };
 
@@ -64,9 +71,9 @@ const servicePlugin = api => {
             if (!bundle_start) {
               const serverService = new CLIService(api.getCwd());
               util.setup({
-                fs: compiler.outputFileSystem,
-                publicPath: compiler.outputPath
+                fs: compiler.outputFileSystem
               });
+              outputDir = compiler.outputPath;
               serverService.run('build', {
                 mode: 'ssr.bundle',
                 target: 'lib',

@@ -29,7 +29,7 @@
     "catharsis": "^0.9.0",
     "code-prettify": "^0.1.0",
     "core-js": "^3.6.5",
-    "eslint": "^6.0.0",
+    "eslint": "^7.0.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-webpack": "^0.13.0",

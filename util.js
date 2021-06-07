@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
 
 function createInteractionHandler() {
   const interactionHandler = {};
-  let publicPath;
   let onmessage = null;
+  interactionHandler.fs = fs;
   interactionHandler.sendMessage = msg => {
-    console.info('on message ', msg);
     return new Promise(resolve => {
       const finishHandler = result => {
         console.info('sendMessage finish with result', result);
@@ -35,35 +35,47 @@ function createInteractionHandler() {
   };
   interactionHandler.readFile = file => {
     try {
-      const fullpath = path.join(publicPath, file);
       if (typeof interactionHandler.fs.readFileSync === 'function') {
-        return interactionHandler.fs.readFileSync(fullpath, 'utf-8');
+        return interactionHandler.fs.readFileSync(file, 'utf-8');
       } else {
-        return fs.readFileSync(fullpath, 'utf-8');
+        return fs.readFileSync(file, 'utf-8');
       }
     } catch (e) {
       return null;
     }
   };
-  interactionHandler.writeFile = (file, content) => {
-    try {
-      const fullpath = path.join(publicPath, file);
-      if (typeof interactionHandler.fs.writeFile === 'function') {
-        return interactionHandler.fs.writeFileSync(fullpath, content, 'utf-8');
+  interactionHandler.mkPath = pathName => {
+    if (typeof interactionHandler.fs.mkdirpSync === 'function') {
+      return interactionHandler.fs.mkdirpSync(pathName);
+    } else {
+      return mkdirp.sync(pathName);
+    }
+  };
+  interactionHandler.copyFile = (inFile, outDir = '', { originFS = interactionHandler.fs, fileName }) => {
+    const outFileName = fileName || path.basename(inFile);
+    const outFile = path.join(outDir, outFileName);
+    if (originFS === interactionHandler.fs) {
+      if (typeof interactionHandler.fs.copyFileSync === 'function') {
+        return interactionHandler.fs.copyFileSync(inFile, outFile);
       } else {
-        return fs.writeFileSync(fullpath, content, 'utf-8');
+        return fs.copyFileSync(inFile, outFile);
       }
-    } catch (e) {
-      return null;
+    } else {
+      const content = originFS.readFileSync(inFile);
+      interactionHandler.writeFile(outFile, content, { encoding: null });
+    }
+  };
+  interactionHandler.writeFile = (file, content, options = 'utf-8') => {
+    if (typeof interactionHandler.fs.writeFileSync === 'function') {
+      return interactionHandler.fs.writeFileSync(file, content, options);
+    } else {
+      return fs.writeFileSync(file, content, options);
     }
   };
 
   interactionHandler.setup = opts => {
     if (opts.fs) {
       interactionHandler.fs = opts.fs;
-    }
-    if (typeof opts.publicPath === 'string') {
-      publicPath = opts.publicPath;
     }
     if (typeof opts.onmessage === 'function') {
       onmessage = opts.onmessage;
