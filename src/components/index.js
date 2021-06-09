@@ -1,4 +1,5 @@
 import Method from './common/method.vue';
+import Event from './common/event.vue';
 import Param from './common/params.vue';
 import TypeParams from './common/tparams.vue';
 import Augments from './common/augments.vue';
@@ -32,7 +33,14 @@ export default {
     Vue.mixin({
       methods: {
         translate(str) {
-          return (this.translations && (this.translations[str] || this.translations[str.toLowerCase()])) || str;
+          const { translations } = this.$store.getters;
+          const mode = translations.find(mode => {
+            return mode.test.test(str);
+          });
+          if (mode) {
+            return mode.value;
+          }
+          return str;
         },
         getAttribs(doclet) {
           const attribs = [];
@@ -83,14 +91,10 @@ export default {
 
           return attribs;
         }
-      },
-      computed: {
-        translations() {
-          return this.$store.state.env.conf['jsdoc-template-vue'].translations;
-        }
       }
     });
     Vue.component('method', Method);
+    Vue.component('event', Event);
     Vue.component('params', Param);
     Vue.component('tparams', TypeParams);
     Vue.component('augments', Augments);

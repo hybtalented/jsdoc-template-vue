@@ -31,7 +31,7 @@ export default function createRouter() {
       { path: '/interface', component: Interface },
       { path: '/source', component: Source },
       { path: '/home', component: Home },
-      { path: '/components', component: Component }
+      { path: '/component', component: Component }
     ]
   });
 }

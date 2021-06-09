@@ -14,10 +14,9 @@
       </header>
       <article>
         <div class="container-overview">
-          <tparams v-if="doc.tparams && doc.tparams.length > 0" :tparams="tparams"></tparams>
           <method :doclet="doc"></method>
         </div>
-        <componentinfo :doclet="doc"></componentinfo>
+        <component-info :doclet="doc"></component-info>
       </article>
     </section>
   </Fragment>

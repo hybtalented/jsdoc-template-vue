@@ -85,7 +85,7 @@ import ListSection from '../ListSection.vue';
 import Section from '../Section.vue';
 
 export default {
-  name: 'Method',
+  name: 'Event',
   components: { ListSection, Section },
   props: {
     doclet: {

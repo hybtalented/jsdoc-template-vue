@@ -267,6 +267,7 @@ function buildNav(members) {
   nav.members.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
   nav.members.modules = buildMemberNav(members.modules, {}, linkto);
   nav.members.externals = buildMemberNav(members.externals, seen, linktoExternal);
+  nav.members.components = buildMemberNav(members.components, seen, linkto);
   nav.members.classes = buildMemberNav(members.classes, seen, linkto);
   nav.members.namespaces = buildMemberNav(members.namespaces, seen, linkto);
   nav.members.mixins = buildMemberNav(members.mixins, seen, linkto);
@@ -432,7 +433,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
   var members = helper.getMembers(data);
   members.tutorials = tutorials.children;
-  const nav = buildNav(members);
+
   // output pretty-printed source files by default
   var outputSourceFiles = !!(conf.default && conf.default.outputSourceFiles !== false);
 
@@ -448,6 +449,19 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var mixins = taffy(members.mixins);
   var externals = taffy(members.externals);
   var interfaces = taffy(members.interfaces);
+  function isComponent(component) {
+    return component.augments && component.augments.indexOf('Vue') !== -1;
+  }
+  members.components = classes(function filterComponent() {
+    return isComponent(this);
+  }).get();
+  members.classes = classes(function filterNormalClass() {
+    return !isComponent(this);
+  }).get();
+  classes = taffy(members.classes);
+  var components = taffy(members.components);
+  const nav = buildNav(members);
+
   async function generateAllFile() {
     // add template helpers
     view.find = find;
@@ -528,6 +542,10 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
         var myInterfaces = helper.find(interfaces, { longname: longname });
         if (myInterfaces.length) {
           await generate('interface', `Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
+        }
+        var myComponents = helper.find(components, { longname: longname });
+        if (myComponents.length) {
+          await generate('component', `Component: ${myComponents[0].name}`, myComponents, helper.longnameToUrl[longname]);
         }
       })
     );

@@ -90,6 +90,7 @@ export default {
         modules: 'Modules',
         externals: 'Externals',
         classes: 'Classes',
+        components: 'Components',
         namespaces: 'Namespaces',
         mixins: 'Mixins',
         interfaces: 'Interfaces',
