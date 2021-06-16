@@ -49,11 +49,20 @@ export default {
     hasCodeTab() {
       return this.codeJs || this.codeHtml ? 'nav nav-tabs' : 'nav nav-tabs hidden';
     },
+    isHtmlTutorial() {
+      return this.doc.isHtmlTutorial;
+    },
+    header() {
+      return this.doc.header;
+    },
+    children() {
+      return this.doc.children;
+    },
+    content() {
+      return this.doc.content;
+    },
     ...mapState({
-      isHtmlTutorial: state => state.isHtmlTutorial,
-      header: state => state.header,
-      children: state => state.children,
-      content: state => state.content
+      doc: state => state.docs[0]
     })
   },
   inject: ['view']

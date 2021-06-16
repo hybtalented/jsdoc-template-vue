@@ -4,7 +4,7 @@
       <h4 class="name" :id="doclet.id">
         <attribs :doclet="doclet"></attribs>
         <name-signature :doclet="doclet"></name-signature>
-        <type-signature v-if="doclet.type" :type="doclet.type" class></type-signature>
+        <type-signature v-if="doclet.type" :type="doclet.type"></type-signature>
         <div v-if="doclet.meta && view.outputSourceFiles" class="container-source members">
           <code><linkto :longname="doclet.meta.shortpath"></linkto></code>,
           <code><linkto :longname="doclet.meta.shortpath" :linkText="'line ' + doclet.meta.lineno" :fragmentId="'line' + doclet.meta.lineno"></linkto></code>

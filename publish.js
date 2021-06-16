@@ -13,7 +13,7 @@ const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
 const CLIService = require('@vue/cli-service');
 const util = require('./util');
-
+const { getMembers } = require('./templateHelper');
 var { Template } = require('./template');
 
 var { htmlsafe } = helper;
@@ -88,12 +88,11 @@ function getPathFromDoclet(doclet) {
 }
 
 async function generate(file, title, docs, filename, _resoveLinks) {
-  var docData;
   var html;
   var outpath;
   const resolveLinks = _resoveLinks !== false;
 
-  docData = {
+  const docData = {
     env: env,
     isTutorial: false,
     title: title,
@@ -111,27 +110,32 @@ async function generate(file, title, docs, filename, _resoveLinks) {
   util.writeFile(outpath, html, 'utf8');
 }
 
-async function generateSourceFiles(sourceFiles, enc) {
+function generateSourceFiles(sourceFiles, enc) {
+  const sourceHtmls = [];
   const encoding = enc || 'utf8';
-  await Promise.all(
-    Object.keys(sourceFiles).map(async file => {
-      var source;
-      // links are keyed to the shortened path in each doclet's `meta.shortpath` property
-      var sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened);
-      helper.registerLink(sourceFiles[file].shortened, sourceOutfile);
+  Object.keys(sourceFiles).forEach(file => {
+    var source;
+    // links are keyed to the shortened path in each doclet's `meta.shortpath` property
+    var sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened);
+    helper.registerLink(sourceFiles[file].shortened, sourceOutfile);
 
-      try {
-        source = {
-          kind: 'source',
-          code: helper.htmlsafe(fs.readFileSync(sourceFiles[file].resolved, encoding))
-        };
-      } catch (e) {
-        logger.error('Error while generating source file %s: %s', file, e.message);
-      }
-
-      await generate('source', `Source: ${sourceFiles[file].shortened}`, [source], sourceOutfile, false);
-    })
-  );
+    try {
+      source = {
+        kind: 'source',
+        code: helper.htmlsafe(fs.readFileSync(sourceFiles[file].resolved, encoding))
+      };
+    } catch (e) {
+      logger.error('Error while generating source file %s: %s', file, e.message);
+    }
+    sourceHtmls.push({
+      component: 'source',
+      title: `Source: ${sourceFiles[file].shortened}`,
+      docs: [source],
+      url: sourceOutfile,
+      resolveLink: false
+    });
+  });
+  return sourceHtmls;
 }
 
 /**
@@ -431,7 +435,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     }
   });
 
-  var members = helper.getMembers(data);
+  var members = getMembers(data);
   members.tutorials = tutorials.children;
 
   // output pretty-printed source files by default
@@ -449,21 +453,10 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var mixins = taffy(members.mixins);
   var externals = taffy(members.externals);
   var interfaces = taffy(members.interfaces);
-  function isComponent(component) {
-    return component.augments && component.augments.indexOf('Vue') !== -1;
-  }
-  members.components = classes(function filterComponent() {
-    return isComponent(this);
-  }).get();
-  members.classes = classes(function filterNormalClass() {
-    return !isComponent(this);
-  }).get();
-  classes = taffy(members.classes);
   var components = taffy(members.components);
-  const nav = buildNav(members);
 
-  async function generateAllFile() {
-    // add template helpers
+  const nav = buildNav(members);
+  function initView() {
     view.find = find;
     view.linkto = linkto;
     view.resolveAuthorLinks = resolveAuthorLinks;
@@ -472,15 +465,8 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     view.outputSourceFiles = outputSourceFiles;
     // once for all
     view.nav = nav;
-    // copy the template's static files to outdir
-    var fromDir = path.join(templatePath, 'template');
-    var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
-
-    staticFiles.forEach(fileName => {
-      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
-      util.mkPath(toDir);
-      util.copyFile(fileName, toDir, { originFS: fs });
-    });
+  }
+  function copyStaticFiles() {
     if (conf.default.staticFiles) {
       // The canonical property name is `include`. We accept `paths` for backwards compatibility
       // with a bug in JSDoc 3.2.x.
@@ -501,117 +487,164 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
         });
       });
     }
-
-    // generate the pretty-printed source files first so other pages can link to them
-    if (outputSourceFiles) {
-      await generateSourceFiles(sourceFiles, opts.encoding);
-    }
-
-    if (members.globals.length) {
-      await generate('global', 'Global', [{ kind: 'globalobj' }], globalUrl);
-    }
-    await generate('home', 'Home', packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]), indexUrl);
-
-    await Promise.all(
-      Object.keys(helper.longnameToUrl).map(async longname => {
-        var myModules = helper.find(modules, { longname: longname });
-        if (myModules.length) {
-          await generate('module', `Module: ${myModules[0].name}`, myModules, helper.longnameToUrl[longname]);
-        }
-
-        var myClasses = helper.find(classes, { longname: longname });
-        if (myClasses.length) {
-          await generate('class', `Class: ${myClasses[0].name}`, myClasses, helper.longnameToUrl[longname]);
-        }
-
-        var myNamespaces = helper.find(namespaces, { longname: longname });
-        if (myNamespaces.length) {
-          await generate('namespace', `Namespace: ${myNamespaces[0].name}`, myNamespaces, helper.longnameToUrl[longname]);
-        }
-
-        var myMixins = helper.find(mixins, { longname: longname });
-        if (myMixins.length) {
-          await generate('mixin', `Mixin: ${myMixins[0].name}`, myMixins, helper.longnameToUrl[longname]);
-        }
-
-        var myExternals = helper.find(externals, { longname: longname });
-        if (myExternals.length) {
-          await generate('external', `External: ${myExternals[0].name}`, myExternals, helper.longnameToUrl[longname]);
-        }
-
-        var myInterfaces = helper.find(interfaces, { longname: longname });
-        if (myInterfaces.length) {
-          await generate('interface', `Interface: ${myInterfaces[0].name}`, myInterfaces, helper.longnameToUrl[longname]);
-        }
-        var myComponents = helper.find(components, { longname: longname });
-        if (myComponents.length) {
-          await generate('component', `Component: ${myComponents[0].name}`, myComponents, helper.longnameToUrl[longname]);
-        }
-      })
-    );
-
-    if (env.opts.tutorials) {
-      copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
-    }
-
-    // remove tutorials recurrency
-    function normalizeTutorial(node) {
-      if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
-      node.children.forEach(normalizeTutorial);
-    }
-    normalizeTutorial(tutorials);
-    // TODO: move the tutorial functions to templateHelper.js
-    async function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
-      var tutorialData = {
-        docs: null, // If there is no "docs" prop, Erros in layout.tmpl. (For left-nav member listing control)
-        isTutorial: true,
-        env: env,
-        title: title,
-        header: tutorial.title,
-        children: tutorial.children,
-        isHtmlTutorial: isHtmlTutorial,
-        package: find({ kind: 'package' })[0]
-      };
-
-      if (isHtmlTutorial) {
-        //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
-      } else {
-        // yes, you can use {@link} in tutorials too!
-        tutorialData.content = helper.resolveLinks(tutorial.parse());
-      }
-
-      var tutorialPath = path.join(outdir, fileName);
-      var html = await view.render('tutorial', tutorialData);
-
-      util.writeFile(tutorialPath, html, 'utf8');
-    }
-
-    // tutorials can have only one parent so there is no risk for loops
-    async function saveChildren(node) {
-      await Promise.all(
-        node.children.map(async child => {
-          var originalFileName = child.name;
-          var isHtmlTutorial = child.type === tutorial.TYPES.HTML;
-          var title = `Tutorial: ${child.title}`;
-          var fileName = helper.tutorialToUrl(child.name);
-
-          await generateTutorial(title, child, fileName, originalFileName, isHtmlTutorial);
-          await saveChildren(child);
-        })
-      );
-    }
-    await saveChildren(tutorials);
   }
+
+  let htmlFiles = [];
+  if (outputSourceFiles) {
+    htmlFiles = htmlFiles.concat(generateSourceFiles(sourceFiles, opts.encoding));
+  }
+  if (members.globals.length) {
+    htmlFiles.push({
+      component: 'global',
+      title: 'Global',
+      docs: [{ kind: 'globalobj' }],
+      url: globalUrl
+    });
+  }
+  htmlFiles.push({
+    component: 'home',
+    title: 'Home',
+    docs: packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]),
+    url: indexUrl
+  });
+  // generate the pretty-printed source files first so other pages can link to them
+
+  Object.keys(helper.longnameToUrl).forEach(longname => {
+    var myModules = helper.find(modules, { longname: longname });
+    if (myModules.length) {
+      htmlFiles.push({
+        component: 'module',
+        title: `Module: ${myModules[0].name}`,
+        docs: myModules,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+
+    var myClasses = helper.find(classes, { longname: longname });
+    if (myClasses.length) {
+      htmlFiles.push({
+        component: 'class',
+        title: `Class: ${myClasses[0].name}`,
+        docs: myClasses,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+
+    var myNamespaces = helper.find(namespaces, { longname: longname });
+    if (myNamespaces.length) {
+      htmlFiles.push({
+        component: 'namespace',
+        title: `Namespace: ${myNamespaces[0].name}`,
+        docs: myNamespaces,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+
+    var myMixins = helper.find(mixins, { longname: longname });
+    if (myMixins.length) {
+      htmlFiles.push({
+        component: 'mixin',
+        title: `Mixin: ${myMixins[0].name}`,
+        docs: myMixins,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+
+    var myExternals = helper.find(externals, { longname: longname });
+    if (myExternals.length) {
+      htmlFiles.push({
+        component: 'external',
+        title: `External: ${myExternals[0].name}`,
+        docs: myExternals,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+
+    var myInterfaces = helper.find(interfaces, { longname: longname });
+    if (myInterfaces.length) {
+      htmlFiles.push({
+        component: 'interface',
+        title: `Interface: ${myInterfaces[0].name}`,
+        docs: myInterfaces,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+    var myComponents = helper.find(components, { longname: longname });
+    if (myComponents.length) {
+      htmlFiles.push({
+        component: 'component',
+        title: `Component: ${myComponents[0].name}`,
+        docs: myComponents,
+        url: helper.longnameToUrl[longname]
+      });
+    }
+  });
+
+  if (env.opts.tutorials) {
+    copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
+  }
+
+  // remove tutorials recurrency
+  function normalizeTutorial(node) {
+    if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
+    node.children.forEach(normalizeTutorial);
+  }
+  normalizeTutorial(tutorials);
+  // TODO: move the tutorial functions to templateHelper.js
+  function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
+    let tutorialContent;
+    if (isHtmlTutorial) {
+      //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
+    } else {
+      // yes, you can use {@link} in tutorials too!
+      tutorialContent = helper.resolveLinks(tutorial.parse());
+    }
+
+    htmlFiles.push({
+      component: 'tutorial',
+      title: title,
+      docs: packages.concat([{ kind: 'tutorial', isHtmlTutorial, children: tutorial.children, header: tutorial.title, content: tutorialContent }]),
+      url: fileName
+    });
+  }
+
+  // tutorials can have only one parent so there is no risk for loops
+  function saveChildren(node) {
+    node.children.forEach(async child => {
+      var originalFileName = child.name;
+      var isHtmlTutorial = child.type === tutorial.TYPES.HTML;
+      var title = `Tutorial: ${child.title}`;
+      var fileName = helper.tutorialToUrl(child.name);
+
+      generateTutorial(title, child, fileName, originalFileName, isHtmlTutorial);
+      saveChildren(child);
+    });
+  }
+  saveChildren(tutorials);
   if (templateConf.server) {
     const cliService = new CLIService(templatePath);
+    let initialize = false;
     util.setup({
       onmessage: async msg => {
         switch (msg.type) {
           case 'update':
+            outdir = msg.outdir;
             if (msg.bundle && msg.manifest) {
-              outdir = msg.outdir;
+              if (!initialize) {
+                copyStaticFiles();
+                initialize = true;
+              }
               view = new Template(layoutFile, msg.bundle, msg.manifest);
-              await generateAllFile();
+              initView(view);
+            }
+            break;
+          case 'request':
+            {
+              const filename = msg.url.replace(/^\//g, '') || 'index.html';
+              const config = htmlFiles.find(config => config.url === filename);
+              if (config) {
+                await generate(config.component, config.title, config.docs, config.url, config.resolveLink);
+              }
             }
             break;
           default:
@@ -626,6 +659,18 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       host: templateConf.host
     });
   } else {
-    await generateAllFile();
+    initView(view);
+    copyStaticFiles();
+    // add template helpers
+    // copy the template's static files to outdir
+    var fromDir = path.join(templatePath, 'template');
+    var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
+
+    staticFiles.forEach(fileName => {
+      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
+      util.mkPath(toDir);
+      util.copyFile(fileName, toDir, { originFS: fs });
+    });
+    await Promise.all(htmlFiles.map(config => generate(config.component, config.title, config.docs, config.url, config.resolveLink)));
   }
 };

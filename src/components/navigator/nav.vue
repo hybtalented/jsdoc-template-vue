@@ -34,7 +34,7 @@
     <!-- Entrys -->
     <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = getMemberClass(name)}">
       <div :class="className" v-if="membersName[name] && member.length > 0">
-        <h3>{{ membersName[name] }}</h3>
+        <h3>{{ translate(membersName[name]) }}</h3>
         <ul>
           <li v-for="(item, index) in member" :key="index">
             <ehtml :html="item.link"></ehtml>
@@ -97,8 +97,7 @@ export default {
         members: 'Members',
         methods: 'Methods',
         events: 'Events',
-        typedef: 'Typedef',
-        ...this.translations
+        typedef: 'Typedef'
       };
     },
     examples() {

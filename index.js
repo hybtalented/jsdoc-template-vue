@@ -34,10 +34,24 @@ const compiler_finish_callback = compile_stats => {
  * @type {import("@vue/cli-service").ServicePlugin}
  */
 const servicePlugin = api => {
+  const isBundle = api.service.mode === 'ssr.bundle';
   const isDevelopment = process.env.NODE_ENV === 'development';
+  if (isDevelopment && !isBundle) {
+    api.configureDevServer(app => {
+      app.get('*', (req, res, next) => {
+        util
+          .sendMessage({
+            type: 'request',
+            url: req.url
+          })
+          .finally(() => {
+            next('route');
+          });
+      });
+    });
+  }
   // in ssr bundle mode, add webpack server-bundle-plugin to listen to the change of ssr bundle
   api.chainWebpack(config => {
-    const isBundle = api.service.mode === 'ssr.bundle';
     const { output } = config;
     const ssr_plugin = config.plugin('ssr');
     const ssr_compiler_plugin = config.plugin('ssr_compiler_inspect');

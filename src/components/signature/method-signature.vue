@@ -8,13 +8,6 @@
 <script>
 export default {
   name: 'MethodSignature',
-  serverCacheKey(props) {
-    const { doclet } = props;
-    if (doclet && doclet.longname) {
-      return doclet.longname;
-    }
-    return false;
-  },
   props: {
     doclet: Object
   },
