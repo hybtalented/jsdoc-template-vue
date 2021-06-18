@@ -33,8 +33,8 @@
     </ol>
     <!-- Entrys -->
     <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = getMemberClass(name)}">
-      <div :class="className" v-if="membersName[name] && member.length > 0">
-        <h3>{{ translate(membersName[name]) }}</h3>
+      <div :class="className" v-if="member.length > 0">
+        <h3>{{ translate(membersName[name] || name) }}</h3>
         <ul>
           <li v-for="(item, index) in member" :key="index">
             <ehtml :html="item.link"></ehtml>
@@ -44,19 +44,11 @@
         </ul>
       </div>
     </Fragment>
-    <Fragment v-if="nav.globals && nav.globals.length > 0">
-      <div v-if="nav.globalTitleLink" class="lnb-api hidden">
-        <h3><ehtml :html="nav.globalTitleLink" /></h3>
-      </div>
-      <div v-else class="lnb-api hidden">
-        <h3>{{ translate('Global') }}</h3>
-        <ul>
-          <li v-for="(g, i) in nav.globals" :key="i" :class="{ hidden: g.kind === 'typedef' }">
-            <ehtml :html="g.link"></ehtml>
-          </li>
-        </ul>
-      </div>
-    </Fragment>
+
+    <div v-if="nav.globals" class="lnb-api hidden">
+      <h3>{{ translate('Global') }}</h3>
+      <SubNav :members="nav.globals" :hidden="false"></SubNav>
+    </div>
   </nav>
 </template>
 <script>

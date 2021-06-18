@@ -219,24 +219,26 @@ function buildSubNav(obj) {
 }
 
 function buildMemberNav(items, itemsSeen, linktoFn) {
-  return items.map(item => {
-    var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_')}_sub` };
-    iteminfo.children = buildSubNav(item);
+  return items
+    .map(item => {
+      var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_')}_sub` };
+      iteminfo.children = buildSubNav(item);
 
-    if (!hasOwnProp.call(item, 'longname')) {
-      iteminfo.link = linktoFn('', item.name);
-    } else if (!hasOwnProp.call(itemsSeen, item.longname)) {
-      let displayName;
-      if (env.conf.templates.default.useLongnameInNav || item.kind === 'namespace') {
-        displayName = item.longname;
-      } else {
-        displayName = item.name;
+      if (!hasOwnProp.call(item, 'longname')) {
+        iteminfo.link = linktoFn('', item.name);
+      } else if (!hasOwnProp.call(itemsSeen, item.longname)) {
+        let displayName;
+        if (env.conf.templates.default.useLongnameInNav || item.kind === 'namespace') {
+          displayName = item.longname;
+        } else {
+          displayName = item.name;
+        }
+        iteminfo.link = linktoFn(item.longname, displayName.replace(/\b(module|event):/g, ''));
       }
-      iteminfo.link = linktoFn(item.longname, displayName.replace(/\b(module|event):/g, ''));
-    }
-    itemsSeen[item.longname] = true;
-    return iteminfo;
-  });
+      itemsSeen[item.longname] = true;
+      return iteminfo;
+    })
+    .filter(iteminfo => iteminfo.link);
 }
 
 function linktoTutorial(longName, name) {
@@ -260,44 +262,55 @@ function linktoExternal(longName, name) {
  * @param {array<object>} members.interfaces
  * @return {string} The HTML for the navigation sidebar.
  */
-function buildNav(members) {
+function buildNav(members, groupConfig) {
   var nav = {
     useCollapsibles: env.conf.templates.useCollapsibles,
     members: {}
   };
   var seen = {};
   var seenTutorials = {};
-
   nav.members.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
   nav.members.modules = buildMemberNav(members.modules, {}, linkto);
   nav.members.externals = buildMemberNav(members.externals, seen, linktoExternal);
-  nav.members.components = buildMemberNav(members.components, seen, linkto);
-  nav.members.classes = buildMemberNav(members.classes, seen, linkto);
-  nav.members.namespaces = buildMemberNav(members.namespaces, seen, linkto);
-  nav.members.mixins = buildMemberNav(members.mixins, seen, linkto);
-  nav.members.interfaces = buildMemberNav(members.interfaces, seen, linkto);
-
-  if (members.globals.length) {
-    var globalNav = [];
-    var useGlobalTitleLink = true;
-
-    members.globals.forEach(g => {
-      if (!hasOwnProp.call(seen, g.longname)) {
-        globalNav.push({
-          kind: g.kind,
-          link: linkto(g.longname, g.name)
-        });
-
-        if (g.kind !== 'typedef') {
-          useGlobalTitleLink = false;
+  ['components', 'classes', 'namespaces', 'mixins', 'interfaces'].forEach(entry => {
+    var members_data = members[entry];
+    const groupFns = [];
+    debugger;
+    if (groupConfig.hasOwnProperty(entry) && typeof groupConfig[entry] === 'object') {
+      const customGroups = groupConfig[entry];
+      Object.keys(customGroups).forEach(groupName => {
+        try {
+          // eslint-disable-next-line no-eval
+          const filterFn = eval(customGroups[groupName]);
+          // eslint-disable-next-line no-inner-declarations
+          function matchFunction(doc) {
+            let is = false;
+            try {
+              is = filterFn(doc);
+            } catch (ex) {
+              logger.debug(`unable filter function for group ${entry}.${groupName} return error`, ex, 'for documentation', doc);
+            }
+            return is;
+          }
+          const groupmembers = members_data.filter(matchFunction);
+          if (groupmembers.length > 0) {
+            nav.members[groupName] = buildMemberNav(groupmembers, seen, linkto);
+          }
+          groupFns.push(matchFunction);
+        } catch (ex) {
+          logger.debug(`filter function of group ${entry}.${groupName} is not valid,`, ex);
         }
-      }
-      seen[g.longname] = true;
-    });
-    nav.globals = globalNav;
-    if (useGlobalTitleLink) {
-      nav.globalTitleLink = linkto('global', 'Global');
+      });
     }
+    const reduce_members = members_data.filter(doc => {
+      return !groupFns.some(fn => fn(doc));
+    });
+    if (reduce_members.length > 0) {
+      nav.members[entry] = buildMemberNav(reduce_members, seen, linkto);
+    }
+  });
+  if (members.globals.length) {
+    nav.globals = buildSubNav({ longname: { isUndefined: true } });
   }
 
   return nav;
@@ -334,7 +347,7 @@ function copyRecursiveSync(src, dest) {
 exports.publish = async function publish(taffyData, opts, tutorials) {
   data = taffyData;
   var conf = env.conf.templates || {};
-  const templateConf = env.conf['jsdoc-template-vue'];
+  const templateConf = env.conf['jsdoc-template-vue'] || {};
   conf.default = conf.default || {};
   const templatePath = path.normalize(opts.template);
   // set up templating
@@ -455,7 +468,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var interfaces = taffy(members.interfaces);
   var components = taffy(members.components);
 
-  const nav = buildNav(members);
+  const nav = buildNav(members, templateConf.groups || {});
   function initView() {
     view.find = find;
     view.linkto = linkto;
