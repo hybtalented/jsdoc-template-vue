@@ -29,7 +29,7 @@
         </td>
 
         <td class="description last">
-          <ehtml :html="prop.description"></ehtml>
+          <ehtml :html="prop.description || prop.summary"></ehtml>
           <Fragment v-if="prop.subprops">
             <h6>Properties</h6>
             <properties :properties="prop.subprops"></properties>
