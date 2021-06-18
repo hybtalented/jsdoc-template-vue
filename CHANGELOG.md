@@ -1,3 +1,7 @@
+**0.2.1**
+- [fix] empty content in tutorial page
+- [refactor] wrapper RenderTask to generate output file
+
 **0.2.0**
 - [refactor] add options server to enable devserver for development
 - [feat] add support for vue component documentation

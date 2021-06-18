@@ -4,7 +4,6 @@
 var doop = require('jsdoc/util/doop');
 var env = require('jsdoc/env');
 var fs = require('jsdoc/fs');
-var helper = require('jsdoc/util/templateHelper');
 var logger = require('jsdoc/util/logger');
 var path = require('jsdoc/path');
 var { taffy } = require('taffydb');
@@ -12,18 +11,16 @@ var tutorial = require('jsdoc/tutorial');
 const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
 const CLIService = require('@vue/cli-service');
+var helper = require('jsdoc/util/templateHelper');
 const util = require('./util');
 const { getMembers } = require('./templateHelper');
 var { Template } = require('./template');
+const { TaskRunner, RenderContext, RenderTask } = require('./task');
 
-var { htmlsafe } = helper;
 var { linkto } = helper;
-var { resolveAuthorLinks } = helper;
 var hasOwnProp = Object.prototype.hasOwnProperty;
-var data;
-var view;
 
-let outdir = path.normalize(env.opts.destination);
+let context;
 
 env.conf.templates = {
   useCollapsibles: true,
@@ -39,10 +36,6 @@ env.conf.templates.tabNames = {
 // Set default useCollapsibles true
 env.conf.templates.useCollapsibles = env.conf.templates.useCollapsibles !== false;
 
-function find(spec) {
-  return helper.find(data, spec);
-}
-
 function tutoriallink(tutorial) {
   return helper.toTutorial(tutorial, null, {
     tag: 'em',
@@ -52,7 +45,7 @@ function tutoriallink(tutorial) {
 }
 
 function getAncestorLinks(doclet) {
-  return helper.getAncestorLinks(data, doclet);
+  return helper.getAncestorLinks(context.data, doclet);
 }
 
 function hashToLink(doclet, hash) {
@@ -87,33 +80,9 @@ function getPathFromDoclet(doclet) {
   return doclet.meta.path && doclet.meta.path !== 'null' ? path.join(doclet.meta.path, doclet.meta.filename) : doclet.meta.filename;
 }
 
-async function generate(file, title, docs, filename, _resoveLinks) {
-  var html;
-  var outpath;
-  const resolveLinks = _resoveLinks !== false;
-
-  const docData = {
-    env: env,
-    isTutorial: false,
-    title: title,
-    docs: docs,
-    package: find({ kind: 'package' })[0]
-  };
-
-  outpath = path.join(outdir, filename);
-  html = await view.render(file, docData);
-
-  if (resolveLinks) {
-    html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
-  }
-
-  util.writeFile(outpath, html, 'utf8');
-}
-
 function generateSourceFiles(sourceFiles, enc) {
-  const sourceHtmls = [];
   const encoding = enc || 'utf8';
-  Object.keys(sourceFiles).forEach(file => {
+  return Object.keys(sourceFiles).map(file => {
     var source;
     // links are keyed to the shortened path in each doclet's `meta.shortpath` property
     var sourceOutfile = helper.getUniqueFilename(sourceFiles[file].shortened);
@@ -127,7 +96,7 @@ function generateSourceFiles(sourceFiles, enc) {
     } catch (e) {
       logger.error('Error while generating source file %s: %s', file, e.message);
     }
-    sourceHtmls.push({
+    return new RenderTask(context, {
       component: 'source',
       title: `Source: ${sourceFiles[file].shortened}`,
       docs: [source],
@@ -135,7 +104,6 @@ function generateSourceFiles(sourceFiles, enc) {
       resolveLink: false
     });
   });
-  return sourceHtmls;
 }
 
 /**
@@ -192,19 +160,19 @@ function buildSubNavMembers(list) {
  */
 function buildSubNav(obj) {
   var { longname } = obj;
-  var members = find({
+  var members = context.find({
     kind: 'member',
     memberof: longname
   });
-  var methods = find({
+  var methods = context.find({
     kind: 'function',
     memberof: longname
   });
-  var events = find({
+  var events = context.find({
     kind: 'event',
     memberof: longname
   });
-  var typedef = find({
+  var typedef = context.find({
     kind: 'typedef',
     memberof: longname
   });
@@ -275,7 +243,7 @@ function buildNav(members, groupConfig) {
   ['components', 'classes', 'namespaces', 'mixins', 'interfaces'].forEach(entry => {
     var members_data = members[entry];
     const groupFns = [];
-    debugger;
+
     if (groupConfig.hasOwnProperty(entry) && typeof groupConfig[entry] === 'object') {
       const customGroups = groupConfig[entry];
       Object.keys(customGroups).forEach(groupName => {
@@ -345,18 +313,13 @@ function copyRecursiveSync(src, dest) {
     @param {Tutorial} tutorials
  */
 exports.publish = async function publish(taffyData, opts, tutorials) {
-  data = taffyData;
   var conf = env.conf.templates || {};
   const templateConf = env.conf['jsdoc-template-vue'] || {};
   conf.default = conf.default || {};
   const templatePath = path.normalize(opts.template);
   // set up templating
   const layoutFile = conf.default.layoutFile ? path.getResourcePath(path.dirname(conf.default.layoutFile), path.basename(conf.default.layoutFile)) : path.join(templatePath, 'layout.html');
-  view = new Template(
-    layoutFile,
-    templateConf.bundleFile ? path.getResourcePath(path.dirname(templateConf.bundleFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json'),
-    templateConf.manifestFile ? path.getResourcePath(path.dirname(templateConf.manifestFile)) : path.join(templatePath, 'template/vue-ssr-client-manifest.json')
-  );
+
   // claim some special filenames in advance, so the All-Powerful Overseer of Filename Uniqueness
   // doesn't try to hand them out later
   var indexUrl = helper.getUniqueFilename('index');
@@ -368,7 +331,15 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   // set up tutorials for helper
   helper.setTutorials(tutorials);
 
-  data = helper.prune(data);
+  context = new RenderContext(helper.prune(taffyData), {
+    view: new Template(
+      layoutFile,
+      templateConf.bundleFile ? path.getResourcePath(path.dirname(templateConf.bundleFile)) : path.join(templatePath, 'template/vue-ssr-server-bundle.json'),
+      templateConf.manifestFile ? path.getResourcePath(path.dirname(templateConf.manifestFile)) : path.join(templatePath, 'template/vue-ssr-client-manifest.json')
+    ),
+    env
+  });
+  const { data } = context;
   data.sort('longname, version, since');
   helper.addEventListeners(data);
 
@@ -413,8 +384,6 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     }
   });
 
-  fs.mkPath(outdir);
-
   // copy user-specified static files to outdir
   var staticFilePaths;
   var staticFileFilter;
@@ -454,11 +423,11 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   // output pretty-printed source files by default
   var outputSourceFiles = !!(conf.default && conf.default.outputSourceFiles !== false);
 
-  attachModuleSymbols(find({ longname: { left: 'module:' } }), members.modules);
+  attachModuleSymbols(context.find({ longname: { left: 'module:' } }), members.modules);
 
   // index page displays information from package.json
-  var packages = find({ kind: 'package' });
-  util.setup({ publicPath: outdir });
+  var packages = context.find({ kind: 'package' });
+  util.setup({ publicPath: context.outdir });
   // set up the lists that we'll use to generate pages
   var classes = taffy(members.classes);
   var modules = taffy(members.modules);
@@ -469,16 +438,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var components = taffy(members.components);
 
   const nav = buildNav(members, templateConf.groups || {});
-  function initView() {
-    view.find = find;
-    view.linkto = linkto;
-    view.resolveAuthorLinks = resolveAuthorLinks;
-    view.tutoriallink = tutoriallink;
-    view.htmlsafe = htmlsafe;
-    view.outputSourceFiles = outputSourceFiles;
-    // once for all
-    view.nav = nav;
-  }
+
   function copyStaticFiles() {
     if (conf.default.staticFiles) {
       // The canonical property name is `include`. We accept `paths` for backwards compatibility
@@ -494,7 +454,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
 
         extraStaticFiles.forEach(fileName => {
           var sourcePath = fs.toDir(absoluteFilePath);
-          var toDir = fs.toDir(fileName.replace(sourcePath, outdir));
+          var toDir = fs.toDir(fileName.replace(sourcePath, context.outdir));
           util.mkPath(toDir);
           util.copyFile(fileName, toDir, { originFS: fs });
         });
@@ -502,99 +462,117 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     }
   }
 
-  let htmlFiles = [];
+  let renderTasks = [];
   if (outputSourceFiles) {
-    htmlFiles = htmlFiles.concat(generateSourceFiles(sourceFiles, opts.encoding));
+    renderTasks = renderTasks.concat(generateSourceFiles(sourceFiles, opts.encoding));
   }
   if (members.globals.length) {
-    htmlFiles.push({
-      component: 'global',
-      title: 'Global',
-      docs: [{ kind: 'globalobj' }],
-      url: globalUrl
-    });
+    renderTasks.push(
+      new RenderTask(context, {
+        component: 'global',
+        title: 'Global',
+        docs: [{ kind: 'globalobj' }],
+        url: globalUrl
+      })
+    );
   }
-  htmlFiles.push({
-    component: 'home',
-    title: 'Home',
-    docs: packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]),
-    url: indexUrl
-  });
+  renderTasks.push(
+    new RenderTask(context, {
+      component: 'home',
+      title: 'Home',
+      docs: packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]),
+      url: indexUrl
+    })
+  );
   // generate the pretty-printed source files first so other pages can link to them
 
   Object.keys(helper.longnameToUrl).forEach(longname => {
     var myModules = helper.find(modules, { longname: longname });
     if (myModules.length) {
-      htmlFiles.push({
-        component: 'module',
-        title: `Module: ${myModules[0].name}`,
-        docs: myModules,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'module',
+          title: `Module: ${myModules[0].name}`,
+          docs: myModules,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
 
     var myClasses = helper.find(classes, { longname: longname });
     if (myClasses.length) {
-      htmlFiles.push({
-        component: 'class',
-        title: `Class: ${myClasses[0].name}`,
-        docs: myClasses,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'class',
+          title: `Class: ${myClasses[0].name}`,
+          docs: myClasses,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
 
     var myNamespaces = helper.find(namespaces, { longname: longname });
     if (myNamespaces.length) {
-      htmlFiles.push({
-        component: 'namespace',
-        title: `Namespace: ${myNamespaces[0].name}`,
-        docs: myNamespaces,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'namespace',
+          title: `Namespace: ${myNamespaces[0].name}`,
+          docs: myNamespaces,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
 
     var myMixins = helper.find(mixins, { longname: longname });
     if (myMixins.length) {
-      htmlFiles.push({
-        component: 'mixin',
-        title: `Mixin: ${myMixins[0].name}`,
-        docs: myMixins,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'mixin',
+          title: `Mixin: ${myMixins[0].name}`,
+          docs: myMixins,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
 
     var myExternals = helper.find(externals, { longname: longname });
     if (myExternals.length) {
-      htmlFiles.push({
-        component: 'external',
-        title: `External: ${myExternals[0].name}`,
-        docs: myExternals,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'external',
+          title: `External: ${myExternals[0].name}`,
+          docs: myExternals,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
 
     var myInterfaces = helper.find(interfaces, { longname: longname });
     if (myInterfaces.length) {
-      htmlFiles.push({
-        component: 'interface',
-        title: `Interface: ${myInterfaces[0].name}`,
-        docs: myInterfaces,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'interface',
+          title: `Interface: ${myInterfaces[0].name}`,
+          docs: myInterfaces,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
     var myComponents = helper.find(components, { longname: longname });
     if (myComponents.length) {
-      htmlFiles.push({
-        component: 'component',
-        title: `Component: ${myComponents[0].name}`,
-        docs: myComponents,
-        url: helper.longnameToUrl[longname]
-      });
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'component',
+          title: `Component: ${myComponents[0].name}`,
+          docs: myComponents,
+          url: helper.longnameToUrl[longname]
+        })
+      );
     }
   });
 
   if (env.opts.tutorials) {
-    copyRecursiveSync(env.opts.tutorials, `${outdir}/tutorials`);
+    copyRecursiveSync(env.opts.tutorials, `${context.outdir}/tutorials`);
   }
 
   // remove tutorials recurrency
@@ -613,12 +591,14 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       tutorialContent = helper.resolveLinks(tutorial.parse());
     }
 
-    htmlFiles.push({
-      component: 'tutorial',
-      title: title,
-      docs: packages.concat([{ kind: 'tutorial', isHtmlTutorial, children: tutorial.children, header: tutorial.title, content: tutorialContent }]),
-      url: fileName
-    });
+    renderTasks.push(
+      new RenderTask(context, {
+        component: 'tutorial',
+        title: title,
+        docs: [{ kind: 'tutorial', isHtmlTutorial, children: tutorial.children, header: tutorial.title, content: tutorialContent }],
+        url: fileName
+      })
+    );
   }
 
   // tutorials can have only one parent so there is no risk for loops
@@ -641,22 +621,22 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       onmessage: async msg => {
         switch (msg.type) {
           case 'update':
-            outdir = msg.outdir;
+            context.outdir = msg.outdir;
             if (msg.bundle && msg.manifest) {
               if (!initialize) {
                 copyStaticFiles();
                 initialize = true;
               }
-              view = new Template(layoutFile, msg.bundle, msg.manifest);
-              initView(view);
+              context.view = new Template(layoutFile, msg.bundle, msg.manifest);
+              context.initView(nav);
             }
             break;
           case 'request':
             {
               const filename = msg.url.replace(/^\//g, '') || 'index.html';
-              const config = htmlFiles.find(config => config.url === filename);
-              if (config) {
-                await generate(config.component, config.title, config.docs, config.url, config.resolveLink);
+              const task = renderTasks.find(task => task.filename === filename);
+              if (task) {
+                await task.run();
               }
             }
             break;
@@ -672,18 +652,21 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       host: templateConf.host
     });
   } else {
-    initView(view);
+    fs.mkPath(context.outdir);
+    context.initView(nav);
     copyStaticFiles();
     // add template helpers
     // copy the template's static files to outdir
     var fromDir = path.join(templatePath, 'template');
     var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
+    debugger;
 
     staticFiles.forEach(fileName => {
-      var toDir = fs.toDir(fileName.replace(fromDir, outdir));
+      var toDir = fs.toDir(fileName.replace(fromDir, context.outdir));
       util.mkPath(toDir);
       util.copyFile(fileName, toDir, { originFS: fs });
     });
-    await Promise.all(htmlFiles.map(config => generate(config.component, config.title, config.docs, config.url, config.resolveLink)));
+    const taskRunner = new TaskRunner(renderTasks, { max_tasks: 0 });
+    await taskRunner.start();
   }
 };

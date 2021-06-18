@@ -1,7 +1,7 @@
 <template>
   <section>
     <header>
-      <ul v-if="children.length > 0">
+      <ul v-if="children && children.length > 0">
         <li v-for="(t, i) in children" :key="i">
           <ehtml :html="view.tutoriallink(t.name)"></ehtml>
         </li>
