@@ -1,3 +1,10 @@
+**0.2.2**
+- [fix] navigator didn't show properly for tutorial
+- [feat] use bootstrap collapse component for navigator
+- [fix] remove cli-service dependency for server disabled
+- [feat] use bootstrap tap component for navigator tabs
+
+
 **0.2.1**
 - [fix] empty content in tutorial page
 - [refactor] wrapper RenderTask to generate output file

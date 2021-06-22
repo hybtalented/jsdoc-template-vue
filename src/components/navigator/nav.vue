@@ -19,35 +19,53 @@
       <ul></ul>
     </div>
 
-    <ol v-if="examples" class="lnb-tab">
-      <li id="api-tab">
-        <a href="#"
-          ><h4>{{ translate('API') }}</h4></a
-        >
-      </li>
-      <li id="examples-tab">
-        <a href="#"
-          ><h4>{{ translate('Tutorials') }}</h4></a
-        >
-      </li>
-    </ol>
+    <ul v-if="tabs.length > 1" class="lnb-tab" role="tablist">
+      <Fragment v-for="tabName in tabs" :key="tabName" v-slot="{ tabID = encodeID(tabName) }">
+        <li id="api-tab" role="presentation">
+          <a :data-target="`[data-member-tab='${tabID}']`" :id="tabID" role="tab" data-toggle="tab" :aria-controls="tabID">
+            <h4>{{ translate(tabName) }}</h4>
+          </a>
+        </li>
+      </Fragment>
+    </ul>
     <!-- Entrys -->
-    <Fragment v-for="(member, name) in members" :key="name" v-slot="{className = getMemberClass(name)}">
-      <div :class="className" v-if="member.length > 0">
-        <h3>{{ translate(membersName[name] || name) }}</h3>
-        <ul>
-          <li v-for="(item, index) in member" :key="index">
-            <ehtml :html="item.link"></ehtml>
-            <button v-if="item.longname && nav.useCollapsibles" type="button" class="hidden toggle-subnav btn btn-link"><span class="glyphicon glyphicon-plus"></span></button>
-            <SubNav :members="item.children" :id="item.id"></SubNav>
-          </li>
-        </ul>
-      </div>
-    </Fragment>
+    <div class="panel-group tab-content" id="nav-groups" role="tablist">
+      <Fragment v-for="(member, name) in members" :key="name" v-slot="{ groupName = membersName[name] || name, groupID = encodeID(name), memberTab = getMemberTabID(name) }">
+        <div :class="['lnb-api', 'panel']" :data-member-tab="memberTab" v-if="member.length > 0">
+          <h3 role="tab">
+            <a data-toggle="collapse" role="button" data-parent="#nav-groups" :data-target="`#${groupID}`" aria-expanded="false" :aria-controls="groupID">{{ translate(groupName) }}</a>
+          </h3>
+          <div class="panel-collapse collapse" :data-parent="`#nav-groups`" :id="groupID" role="tabpanel">
+            <ul class="panel-group" role="tablist" :id="`${groupID}-subnav`">
+              <Fragment v-for="(item, index) in member" :key="index" v-slot="{ itemId = item.id.replace(/[\\/]/g, '-') }">
+                <li class="panel">
+                  <ehtml :html="item.link"></ehtml>
+                  <button
+                    v-if="item.longname && nav.useCollapsibles"
+                    type="button"
+                    :data-parent="`#${groupID}-subnav`"
+                    data-toggle="collapse"
+                    :data-target="`#${itemId}`"
+                    aria-expanded="false"
+                    :aria-controls="itemId"
+                    class="toggle-subnav btn btn-link"
+                  >
+                    <span class="glyphicon"></span>
+                  </button>
+                  <SubNav :members="item.children" :data-parent="`#${groupID}-subnav`" class="panel-collapse collapse" role="tabpanel" :id="itemId"></SubNav>
+                </li>
+              </Fragment>
+            </ul>
+          </div>
+        </div>
+      </Fragment>
 
-    <div v-if="nav.globals" class="lnb-api hidden">
-      <h3>{{ translate('Global') }}</h3>
-      <SubNav :members="nav.globals" :hidden="false"></SubNav>
+      <div v-if="nav.globals" :class="['lnb-api', 'panel']" :data-member-tab="getMemberTabID('globals')">
+        <h3>
+          <a data-toggle="collapse" data-parent="#nav-groups" data-target="#globals">{{ translate('Global') }}</a>
+        </h3>
+        <SubNav id="globals" class="panel-collapse collapse" role="tabpanel" :members="nav.globals" :hidden="false"></SubNav>
+      </div>
     </div>
   </nav>
 </template>
@@ -66,16 +84,31 @@ export default {
     };
   },
   methods: {
-    getMemberClass(name) {
-      switch (name) {
-        case 'tutorials':
-          return 'lnb-examples hidden';
-        default:
-          return 'lnb-api hidden';
+    encodeID(id) {
+      return encodeURI(id).replace(/[%]/g, '-');
+    },
+    getMemberTabID(name) {
+      const tab = this.tabRules.find(test => test.test.test(name));
+      if (tab) {
+        return this.encodeID(tab.name);
       }
     }
   },
   computed: {
+    tabRules() {
+      const tabRules = [];
+      const config = this.tabConfig;
+      Object.keys(config).forEach(tabName => {
+        tabRules.push({ name: tabName, test: new RegExp(config[tabName]) });
+      });
+      return tabRules;
+    },
+    tabConfig() {
+      return { Tutorials: 'tutorials', API: '.*' };
+    },
+    tabs() {
+      return Object.keys(this.tabConfig).reverse();
+    },
     membersName() {
       return {
         tutorials: 'Tutorials',

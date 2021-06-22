@@ -1,26 +1,6 @@
 /** ************* API-EXAMPLES TAB ***************/
-import $ from 'jquery';
-import PR from './prettify';
-
-var $apiTab = $('#api-tab');
-var $examplesTab = $('#examples-tab');
-
-export function showLnbExamples() {
-  $apiTab.removeClass('selected');
-  $examplesTab.addClass('selected');
-  $('.lnb-api').addClass('hidden');
-  $('.lnb-examples').removeClass('hidden');
-}
-
-export function showLnbApi() {
-  $examplesTab.removeClass('selected');
-  $apiTab.addClass('selected');
-  $('.lnb-api').removeClass('hidden');
-  $('.lnb-examples').addClass('hidden');
-}
-
-$apiTab.click(showLnbApi);
-$examplesTab.click(showLnbExamples);
+import $ from '../3rd/jquery';
+import PR from '../3rd/prettify';
 
 /** ************* RESIZE ***************/
 var $resizer = $('#resizer');
@@ -190,29 +170,6 @@ function onKeydownInput(event) {
 $searchInput.on({
   keyup: onKeyupSearchInput,
   keydown: onKeydownInput
-});
-
-/** ************* TOOGLE SUB NAV ***************/
-function toggleSubNav(e) {
-  $(e.currentTarget)
-    .next()
-    .toggleClass('hidden');
-  $(e.currentTarget)
-    .find('.glyphicon')
-    .toggleClass('glyphicon-plus glyphicon-minus');
-}
-
-$lnb.find('.lnb-api').each(function initLnbApi() {
-  $(this)
-    .find('.toggle-subnav')
-    .filter(function findNoEmpty() {
-      return $(this).next(':empty').length === 0;
-    })
-    .each(function showSunNav() {
-      $(this)
-        .removeClass('hidden')
-        .on('click', toggleSubNav);
-    });
 });
 
 var source = document.getElementsByClassName('prettyprint source linenums');

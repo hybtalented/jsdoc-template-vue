@@ -1,3 +1,11 @@
+@import '~bootstrap/less/theme.less';
+@import '~bootstrap/less/buttons.less';
+@import '~bootstrap/less/glyphicons.less';
+@import '~bootstrap/less/component-animations.less';
+@import '~bootstrap/less/navs.less';
+@import '~bootstrap/less/scaffolding.less';
+
+@footer-height: 35px;
 ul,
 ol,
 li {
@@ -9,13 +17,14 @@ li {
 /* Navigation - LNB */
 .lnb {
   width: 290px;
+  height: calc(100vh - @footer-height);
   position: absolute;
   bottom: 30px;
   top: 0;
   overflow: auto;
   left: 0;
   background-color: #161b1d;
-  padding: 0 20px;
+  padding: 0 0 0 20px;
   .logo {
     height: 13px;
     margin: 20px auto 0;
@@ -38,21 +47,12 @@ li {
       }
     }
   }
-  .lnb-api,
-  .lnb-examples {
-    li {
-      padding-top: 5px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid #1f292e;
-    }
-    a {
-      color: #7cafc2;
-      &:hover {
-        color: #a3cfdf;
-      }
-    }
-  }
+
   .lnb-api {
+    display: none;
+    &.active {
+      display: block;
+    }
     h3 {
       a {
         color: #fa3282;
@@ -68,6 +68,34 @@ li {
       font-size: 10px;
       &:focus {
         outline: 0;
+      }
+      & span:before {
+        content: '\002b';
+      }
+      &[aria-expanded='true'] span:before {
+        content: '\2212';
+      }
+    }
+    li {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #1f292e;
+    }
+
+    a {
+      color: #7cafc2;
+      &:hover {
+        color: #a3cfdf;
+      }
+    }
+  }
+  [data-member-tab='Tutorials'] {
+    h3 {
+      a {
+        color: #7cafc2;
+        &:hover {
+          color: #a3cfdf;
+        }
       }
     }
   }
@@ -113,9 +141,10 @@ li {
       color: #aaa;
       font-size: 0.9em;
     }
-    &.selected a {
+    &.active a {
       color: #fff;
       font-size: 1em;
+      background-color: non;
     }
     & + li {
       a h4:before {
@@ -293,11 +322,12 @@ li {
 /* FOOTER */
 footer {
   padding-top: 3px;
-  line-height: 35px;
-  height: 35px;
+  line-height: @footer-height;
+  height: @footer-height;
   position: fixed;
   width: 100%;
   bottom: 0;
+  left: 0;
   background-color: #00beaa;
   color: #ebf8ff;
   text-align: center;

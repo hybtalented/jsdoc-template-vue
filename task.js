@@ -59,7 +59,7 @@ exports.RenderTask = class RenderTask {
 
     const docData = {
       env: env,
-      isTutorial: false,
+      isTutorial: component === 'tutorial',
       title: title,
       docs: docs,
       package: find({ kind: 'package' })[0]

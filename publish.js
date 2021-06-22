@@ -10,7 +10,6 @@ var { taffy } = require('taffydb');
 var tutorial = require('jsdoc/tutorial');
 const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
-const CLIService = require('@vue/cli-service');
 var helper = require('jsdoc/util/templateHelper');
 const util = require('./util');
 const { getMembers } = require('./templateHelper');
@@ -615,6 +614,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   }
   saveChildren(tutorials);
   if (templateConf.server) {
+    const CLIService = require('@vue/cli-service');
     const cliService = new CLIService(templatePath);
     let initialize = false;
     util.setup({
