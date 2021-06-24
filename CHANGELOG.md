@@ -1,3 +1,7 @@
+**0.2.3**
+- add support for language mermaid
+
+
 **0.2.2**
 - [fix] navigator didn't show properly for tutorial
 - [feat] use bootstrap collapse component for navigator

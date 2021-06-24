@@ -5,10 +5,11 @@ import './assets/prettify-jsdoc.css';
 import './assets/prettify-tomorrow.css';
 import './assets/tui-doc.less';
 import { createApp } from './app';
-import { prettyPrint } from './mount';
+import { prettyPrint, initializeMermaid } from './mount';
 
 const { store } = createApp({}, { env: {} });
 
+initializeMermaid();
 prettyPrint();
 
 const id = `${store.state.docs[0].longname}_sub`.replace(/"/g, '_').replace(/[\\/]/g, '-');

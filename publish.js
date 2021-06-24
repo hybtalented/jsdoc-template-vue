@@ -188,7 +188,7 @@ function buildSubNav(obj) {
 function buildMemberNav(items, itemsSeen, linktoFn) {
   return items
     .map(item => {
-      var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_')}_sub` };
+      var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_').replace(/[\\/]/g, '-')}_sub` };
       iteminfo.children = buildSubNav(item);
 
       if (!hasOwnProp.call(item, 'longname')) {
@@ -483,6 +483,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       url: indexUrl
     })
   );
+
   // generate the pretty-printed source files first so other pages can link to them
 
   Object.keys(helper.longnameToUrl).forEach(longname => {

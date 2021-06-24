@@ -1,4 +1,4 @@
-/** ************* API-EXAMPLES TAB ***************/
+import mermaid from 'mermaid';
 import $ from '../3rd/jquery';
 import PR from '../3rd/prettify';
 
@@ -199,7 +199,15 @@ if (source && source[0]) {
     }
   }
 }
-
+export function initializeMermaid() {
+  $('.lang-mermaid').each(function replaceWithDiv() {
+    const $el = $(this);
+    $el.replaceWith(`<div class="mermaid">${$el.text()}</div>`);
+  });
+  mermaid.initialize({
+    startOnLoad: true
+  });
+}
 export function prettyPrint() {
   PR.prettyPrint();
   var source = document.getElementsByClassName('prettyprint source linenums');

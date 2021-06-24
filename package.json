@@ -1,6 +1,6 @@
 {
   "name": "jsdoc-template-vue",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "scripts": {
     "serve": "vue-cli-service serve --mode dev",
     "build": "vue-cli-service build --mode client.prod --target app",
@@ -43,6 +43,7 @@
     "less-loader": "^4.1.0",
     "lru-cache": "^6.0.0",
     "memory-fs": "^0.5.0",
+    "mermaid": "^8.10.2",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
     "popper.js": "^1.16.1",
@@ -102,5 +103,6 @@
   "bugs": {
     "url": "https://github.com/hybtalented/jsdoc-template-vue/issues"
   },
-  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme"
+  "homepage": "https://github.com/hybtalented/jsdoc-template-vue#readme",
+  "dependencies": {}
 }
