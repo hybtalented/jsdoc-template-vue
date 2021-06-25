@@ -1,3 +1,7 @@
+/* eslint-disable import/no-unresolved */
+const helper = require('jsdoc/util/templateHelper');
+const tutorial = require('jsdoc/tutorial');
+
 const MODULE_NAMESPACE = 'module:';
 /**
  * Find items in a TaffyDB database that match the specified key-value pairs.
@@ -52,7 +56,8 @@ exports.getMembers = data => {
     mixins: find(data, { kind: 'mixin' }),
     modules: find(data, { kind: 'module' }),
     namespaces: find(data, { kind: 'namespace' }),
-    interfaces: find(data, { kind: 'interface' })
+    interfaces: find(data, { kind: 'interface' }),
+    tutorials: find(data, { kind: 'tutorial', memberof: { isUndefined: true } })
   };
 
   // strip quotes from externals, since we allow quoted names that would normally indicate a
@@ -69,4 +74,45 @@ exports.getMembers = data => {
   members.globals = members.globals.filter(doclet => !isModuleExports(doclet));
 
   return members;
+};
+
+function generateDoclet(theTutorial) {
+  let tutorialContent;
+  var isHtmlTutorial = theTutorial.type === tutorial.TYPES.HTML;
+  if (isHtmlTutorial) {
+    //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
+  } else {
+    // yes, you can use {@link} in tutorials too!
+    tutorialContent = helper.resolveLinks(theTutorial.parse());
+  }
+  var fileName = helper.tutorialToUrl(theTutorial.name);
+  var longname = `${fileName.replace('.html', '')}`;
+  helper.registerLink(longname, fileName);
+
+  return {
+    kind: 'tutorial',
+    isHtmlTutorial,
+    title: theTutorial.title,
+    content: tutorialContent,
+    name: theTutorial.name,
+    longname: longname
+  };
+}
+
+exports.generateTutorialDoclets = tutorials => {
+  const tutorials_docs = [];
+
+  // tutorials can have only one parent so there is no risk for loops
+  function generateChildrenDoclet(node, parentDoclet = null) {
+    node.children.forEach(async child => {
+      const doclet = generateDoclet(child);
+      if (parentDoclet) {
+        doclet.memberof = parentDoclet.longname;
+      }
+      tutorials_docs.push(doclet);
+      generateChildrenDoclet(child, doclet);
+    });
+  }
+  generateChildrenDoclet(tutorials);
+  return tutorials_docs;
 };

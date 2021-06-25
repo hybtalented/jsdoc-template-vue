@@ -6,7 +6,7 @@
           <ehtml :html="view.tutoriallink(t.name)"></ehtml>
         </li>
       </ul>
-      <h2 v-if="header">{{ header }}</h2>
+      <h2 v-if="title">{{ title }}</h2>
     </header>
     <Fragment v-if="isHtmlTutorial">
       <ul id="example-nav" :class="hasCodeTab">
@@ -52,11 +52,11 @@ export default {
     isHtmlTutorial() {
       return this.doc.isHtmlTutorial;
     },
-    header() {
-      return this.doc.header;
+    title() {
+      return this.doc.title;
     },
     children() {
-      return this.doc.children;
+      return this.view.find({ kind: 'tutorial', memberof: this.doc.longname });
     },
     content() {
       return this.doc.content;

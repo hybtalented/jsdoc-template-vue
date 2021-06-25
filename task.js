@@ -60,13 +60,12 @@ exports.RenderTask = class RenderTask {
     const docData = {
       env: env,
       isTutorial: component === 'tutorial',
-      title: title,
       docs: docs,
       package: find({ kind: 'package' })[0]
     };
 
     outpath = path.join(outdir, filename);
-    html = await view.render(component, docData);
+    html = await view.render(component, title, docData);
 
     if (resolveLinks) {
       html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>

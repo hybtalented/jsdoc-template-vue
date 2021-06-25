@@ -1,10 +1,13 @@
 <template>
-  <Fragment>
-    <div class="member-type">{{ translate(name) }}</div>
+  <div>
+    <div v-if="name" class="member-type">{{ translate(name) }}</div>
     <ul class="inner">
-      <li v-for="item in items" :key="item.name"><ehtml :html="item.link"></ehtml></li>
+      <li v-for="item in items" :key="item.name">
+        <ehtml :html="item.link"></ehtml>
+        <SubNavMember :members="item.children" class="panel-collapse collapse" role="tabpanel" :id="`${getIDByLongname(item.name)}_nav`"></SubNavMember>
+      </li>
     </ul>
-  </Fragment>
+  </div>
 </template>
 
 <script>

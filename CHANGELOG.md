@@ -1,5 +1,6 @@
 **0.2.3**
-- add support for language mermaid
+- [feat] add support for markdown language mermaid
+- [fix] fix template subdocumentation page didn't show nav properly
 
 
 **0.2.2**

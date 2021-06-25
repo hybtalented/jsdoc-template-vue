@@ -7,12 +7,11 @@ var fs = require('jsdoc/fs');
 var logger = require('jsdoc/util/logger');
 var path = require('jsdoc/path');
 var { taffy } = require('taffydb');
-var tutorial = require('jsdoc/tutorial');
 const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
 var helper = require('jsdoc/util/templateHelper');
 const util = require('./util');
-const { getMembers } = require('./templateHelper');
+const { getMembers, generateTutorialDoclets } = require('./templateHelper');
 var { Template } = require('./template');
 const { TaskRunner, RenderContext, RenderTask } = require('./task');
 
@@ -145,11 +144,23 @@ function attachModuleSymbols(doclets, modules) {
     }
   });
 }
-function buildSubNavMembers(list) {
-  return list.map(item => ({
-    name: item.longname,
-    link: linkto(item.longname, item.name)
-  }));
+
+function buildSubNavMembers(list, isTutorial) {
+  return list.map(doclet => {
+    const navitem = {
+      name: doclet.longname,
+      link: linkto(doclet.longname, doclet.title || doclet.name)
+      // eslint-disable-next-line no-use-before-define
+    };
+    if (isTutorial) {
+      var tutorials = context.find({
+        kind: 'tutorial',
+        memberof: doclet.longname
+      });
+      navitem.children = buildSubNavMembers(tutorials, true);
+    }
+    return navitem;
+  });
 }
 /**
  * For lnb listing
@@ -175,20 +186,28 @@ function buildSubNav(obj) {
     kind: 'typedef',
     memberof: longname
   });
+  var tutorials = context.find({
+    kind: 'tutorial',
+    memberof: longname
+  });
   var subnav = {
+    tutorials: buildSubNavMembers(tutorials, true),
     members: buildSubNavMembers(members),
     methods: buildSubNavMembers(methods),
     events: buildSubNavMembers(events),
     typedef: buildSubNavMembers(typedef)
   };
+  if (Object.keys(subnav).some(subname => subnav[subname].length > 0)) {
+    return subnav;
+  }
 
-  return subnav;
+  return null;
 }
 
 function buildMemberNav(items, itemsSeen, linktoFn) {
   return items
     .map(item => {
-      var iteminfo = { longname: item.longname, id: `${item.longname.replace(/"/g, '_').replace(/[\\/]/g, '-')}_sub` };
+      var iteminfo = { longname: item.longname };
       iteminfo.children = buildSubNav(item);
 
       if (!hasOwnProp.call(item, 'longname')) {
@@ -235,8 +254,7 @@ function buildNav(members, groupConfig) {
     members: {}
   };
   var seen = {};
-  var seenTutorials = {};
-  nav.members.tutorials = buildMemberNav(members.tutorials, seenTutorials, linktoTutorial, true);
+  nav.members.tutorials = buildMemberNav(members.tutorials, seen, linktoTutorial, true);
   nav.members.modules = buildMemberNav(members.modules, {}, linkto);
   nav.members.externals = buildMemberNav(members.externals, seen, linktoExternal);
   ['components', 'classes', 'namespaces', 'mixins', 'interfaces'].forEach(entry => {
@@ -404,7 +422,9 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
       }
     }
   });
-
+  // the tutorial doclets don't need to registerLink again
+  const tutorialDoclets = generateTutorialDoclets(tutorials);
+  data.insert(tutorialDoclets);
   data().each(doclet => {
     doclet.ancestors = getAncestorLinks(doclet);
     var url = helper.longnameToUrl[doclet.longname];
@@ -417,7 +437,6 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   });
 
   var members = getMembers(data);
-  members.tutorials = tutorials.children;
 
   // output pretty-printed source files by default
   var outputSourceFiles = !!(conf.default && conf.default.outputSourceFiles !== false);
@@ -435,7 +454,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   var externals = taffy(members.externals);
   var interfaces = taffy(members.interfaces);
   var components = taffy(members.components);
-
+  var tutorials = taffy(tutorialDoclets);
   const nav = buildNav(members, templateConf.groups || {});
 
   function copyStaticFiles() {
@@ -522,6 +541,17 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
         })
       );
     }
+    var myTutoriales = helper.find(tutorials, { longname: longname });
+    if (myTutoriales.length) {
+      renderTasks.push(
+        new RenderTask(context, {
+          component: 'tutorial',
+          title: `Tutorial: ${myTutoriales[0].name}`,
+          docs: myTutoriales,
+          url: helper.longnameToUrl[longname]
+        })
+      );
+    }
 
     var myMixins = helper.find(mixins, { longname: longname });
     if (myMixins.length) {
@@ -576,44 +606,6 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
   }
 
   // remove tutorials recurrency
-  function normalizeTutorial(node) {
-    if (node.parent) node.parent = { ...node.parent, children: null, _tutorials: null };
-    node.children.forEach(normalizeTutorial);
-  }
-  normalizeTutorial(tutorials);
-  // TODO: move the tutorial functions to templateHelper.js
-  function generateTutorial(title, tutorial, fileName, originalFileName, isHtmlTutorial) {
-    let tutorialContent;
-    if (isHtmlTutorial) {
-      //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
-    } else {
-      // yes, you can use {@link} in tutorials too!
-      tutorialContent = helper.resolveLinks(tutorial.parse());
-    }
-
-    renderTasks.push(
-      new RenderTask(context, {
-        component: 'tutorial',
-        title: title,
-        docs: [{ kind: 'tutorial', isHtmlTutorial, children: tutorial.children, header: tutorial.title, content: tutorialContent }],
-        url: fileName
-      })
-    );
-  }
-
-  // tutorials can have only one parent so there is no risk for loops
-  function saveChildren(node) {
-    node.children.forEach(async child => {
-      var originalFileName = child.name;
-      var isHtmlTutorial = child.type === tutorial.TYPES.HTML;
-      var title = `Tutorial: ${child.title}`;
-      var fileName = helper.tutorialToUrl(child.name);
-
-      generateTutorial(title, child, fileName, originalFileName, isHtmlTutorial);
-      saveChildren(child);
-    });
-  }
-  saveChildren(tutorials);
   if (templateConf.server) {
     const CLIService = require('@vue/cli-service');
     const cliService = new CLIService(templatePath);
@@ -660,7 +652,6 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     // copy the template's static files to outdir
     var fromDir = path.join(templatePath, 'template');
     var staticFiles = fs.ls(path.join(fromDir, 'static'), 3);
-    debugger;
 
     staticFiles.forEach(fileName => {
       var toDir = fs.toDir(fileName.replace(fromDir, context.outdir));

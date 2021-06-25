@@ -21,6 +21,7 @@ jsdoc-template-vue has the following features:
   - Grouped navigation for components, classes, namespaces, mixins
   - API / Examples (Tutorials) switcher
   - Resizable
+  - mermaid support in markdown snippet
 - Examples: HTML/JS source tab in example pages
 - Typescript feature support: Generics Type
 

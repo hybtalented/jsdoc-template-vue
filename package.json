@@ -10,10 +10,16 @@
   },
   "files": [
     "template/",
+    "plugins/",
     "src/",
     "layout.html",
+    "task.js",
+    "util.js",
+    "index.js",
+    "templateHelper.js",
     "template.js",
-    "vue.config.js"
+    "vue.config.js",
+    "README.md"
   ],
   "vuePlugins": {
     "service": [

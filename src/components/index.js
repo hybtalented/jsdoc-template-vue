@@ -20,9 +20,7 @@ import AttribsSignature from './signature/attribs-signature.vue';
 import ParamsSignature from './signature/params-signature.vue';
 import ReturnsSignature from './signature/returns-signature.vue';
 import MethodSignature from './signature/method-signature.vue';
-import ExtractHTML from './util/extracthtml';
-import Fragment from './util/fragment';
-import LinkTo from './util/linkto.vue';
+import { LinkTo, Fragment, ExtractHTML, getIDByLongname } from './util';
 
 /**
  * global components
@@ -42,6 +40,7 @@ export default {
           }
           return str;
         },
+        getIDByLongname,
         getAttribs(doclet) {
           const attribs = [];
           const d = doclet;

@@ -20,7 +20,7 @@
     </div>
 
     <ul v-if="tabs.length > 1" class="lnb-tab" role="tablist">
-      <Fragment v-for="tabName in tabs" :key="tabName" v-slot="{ tabID = encodeID(tabName) }">
+      <Fragment v-for="tabName in tabs" :key="tabName" v-slot="{ tabID = getIDByLongname(tabName) }">
         <li id="api-tab" role="presentation">
           <a :data-target="`[data-member-tab='${tabID}']`" :id="tabID" role="tab" data-toggle="tab" :aria-controls="tabID">
             <h4>{{ translate(tabName) }}</h4>
@@ -30,18 +30,18 @@
     </ul>
     <!-- Entrys -->
     <div class="panel-group tab-content" id="nav-groups" role="tablist">
-      <Fragment v-for="(member, name) in members" :key="name" v-slot="{ groupName = membersName[name] || name, groupID = encodeID(name), memberTab = getMemberTabID(name) }">
+      <Fragment v-for="(member, name) in members" :key="name" v-slot="{ groupName = membersName[name] || name, groupID = getIDByLongname(name), memberTab = getMemberTabID(name) }">
         <div :class="['lnb-api', 'panel']" :data-member-tab="memberTab" v-if="member.length > 0">
           <h3 role="tab">
             <a data-toggle="collapse" role="button" data-parent="#nav-groups" :data-target="`#${groupID}`" aria-expanded="false" :aria-controls="groupID">{{ translate(groupName) }}</a>
           </h3>
           <div class="panel-collapse collapse" :data-parent="`#nav-groups`" :id="groupID" role="tabpanel">
             <ul class="panel-group" role="tablist" :id="`${groupID}-subnav`">
-              <Fragment v-for="(item, index) in member" :key="index" v-slot="{ itemId = item.id.replace(/[\\/]/g, '-') }">
+              <Fragment v-for="(item, index) in member" :key="index" v-slot="{ itemId = `${getIDByLongname(item.longname)}_nav` }">
                 <li class="panel">
                   <ehtml :html="item.link"></ehtml>
                   <button
-                    v-if="item.longname && nav.useCollapsibles"
+                    v-if="item.longname && nav.useCollapsibles && item.children"
                     type="button"
                     :data-parent="`#${groupID}-subnav`"
                     data-toggle="collapse"
@@ -84,13 +84,10 @@ export default {
     };
   },
   methods: {
-    encodeID(id) {
-      return encodeURI(id).replace(/[%]/g, '-');
-    },
     getMemberTabID(name) {
       const tab = this.tabRules.find(test => test.test.test(name));
       if (tab) {
-        return this.encodeID(tab.name);
+        return this.getIDByLongname(tab.name);
       }
     }
   },

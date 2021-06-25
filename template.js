@@ -31,11 +31,12 @@ class Template {
    * This method automaticaly applies layout if set.
    *
    * @param {string} file - Template filename.
+   * @param {string} title - html title
    * @param {object} data - Template variables (doesn't have to be object, but passing variables dictionary is best way and most common use).
    * @return {Promise<string>} Rendered template.
    */
-  render(file, data) {
-    return this.renderer.renderToString({ url: `/${file}`, data, view: this });
+  render(file, title, data) {
+    return this.renderer.renderToString({ url: `/${file}`, title, data, view: this });
   }
 }
 exports.Template = Template;

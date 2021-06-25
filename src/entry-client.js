@@ -6,14 +6,17 @@ import './assets/prettify-tomorrow.css';
 import './assets/tui-doc.less';
 import { createApp } from './app';
 import { prettyPrint, initializeMermaid } from './mount';
+import { getIDByLongname } from './components/util';
 
 const { store } = createApp({}, { env: {} });
 
 initializeMermaid();
 prettyPrint();
 
-const id = `${store.state.docs[0].longname}_sub`.replace(/"/g, '_').replace(/[\\/]/g, '-');
-var selectedApi = document.getElementById(id); // do not use jquery selector
+const doclet = store.state.docs[0];
+const id = `${getIDByLongname(doclet.longname)}_nav`;
+
+const selectedApi = document.getElementById(id); // do not use jquery selector
 if (selectedApi) {
   var $selectedApi = $(selectedApi);
   var $selectTab = $(`#${$selectedApi.parents('.lnb-api').data('member-tab')}`);
