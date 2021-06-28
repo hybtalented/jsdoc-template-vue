@@ -21,7 +21,7 @@ jsdoc-template-vue has the following features:
   - Grouped navigation for components, classes, namespaces, mixins
   - API / Examples (Tutorials) switcher
   - Resizable
-  - mermaid support in markdown snippet
+  - mermaid support in markdown snippet，see [mermaid documentation](https://mermaid-js.github.io/mermaid/#/)
 - Examples: HTML/JS source tab in example pages
 - Typescript feature support: Generics Type
 
@@ -32,7 +32,7 @@ Here is an full example configuration of jsdoc
 ```js
 {
   "$schema": "https://json.schemastore.org/jsdoc-1.0.0.json",
-  "plugins": ["jsdoc-plugin-typescript", "jsdoc-template-vue/plugins/vue", "plugins/markdown", "plugins/summarize"],
+  "plugins": ["jsdoc-plugin-typescript-support", "jsdoc-template-vue/plugins/vue", "plugins/markdown", "plugins/summarize"],
   "source": {
     // include source files
     "include": ["types", "node_modules/view-design/types"],

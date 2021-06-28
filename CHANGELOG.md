@@ -1,3 +1,6 @@
+**0.2.4**
+- [fix] fix bugs for classes is not rendered
+
 **0.2.3**
 - [feat] add support for markdown language mermaid
 - [fix] fix template subdocumentation page didn't show nav properly

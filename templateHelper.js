@@ -45,7 +45,7 @@ function isModuleExports(doclet) {
  */
 exports.getMembers = data => {
   const members = {
-    classes: find(data, { kind: 'class', isComponent: false }),
+    classes: data({ kind: 'class' }, [{ isComponent: { isUndefined: true } }, { isComponent: false }]).get(),
     components: find(data, { isComponent: true }),
     externals: find(data, { kind: 'external' }),
     events: find(data, { kind: 'event' }),
