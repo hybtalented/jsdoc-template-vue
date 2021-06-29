@@ -75,7 +75,10 @@ exports.getMembers = data => {
 
   return members;
 };
-
+function resolveMarkdown(markdownstring) {
+  return helper.resolveLinks(markdownstring);
+}
+exports.resolveMarkdown = resolveMarkdown;
 function generateDoclet(theTutorial) {
   let tutorialContent;
   var isHtmlTutorial = theTutorial.type === tutorial.TYPES.HTML;
@@ -83,7 +86,7 @@ function generateDoclet(theTutorial) {
     //   _.extend(tutorialData, generateHtmlTutorialData(tutorial, fileName, originalFileName));
   } else {
     // yes, you can use {@link} in tutorials too!
-    tutorialContent = helper.resolveLinks(theTutorial.parse());
+    tutorialContent = resolveMarkdown(theTutorial.parse());
   }
   var fileName = helper.tutorialToUrl(theTutorial.name);
   var longname = `${fileName.replace('.html', '')}`;

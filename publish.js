@@ -11,7 +11,7 @@ const { Filter } = require('jsdoc/src/filter');
 const { Scanner } = require('jsdoc/src/scanner');
 var helper = require('jsdoc/util/templateHelper');
 const util = require('./util');
-const { getMembers, generateTutorialDoclets } = require('./templateHelper');
+const { getMembers, generateTutorialDoclets, resolveMarkdown } = require('./templateHelper');
 var { Template } = require('./template');
 const { TaskRunner, RenderContext, RenderTask } = require('./task');
 
@@ -498,7 +498,7 @@ exports.publish = async function publish(taffyData, opts, tutorials) {
     new RenderTask(context, {
       component: 'home',
       title: 'Home',
-      docs: packages.concat([{ kind: 'mainpage', readme: opts.readme, longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]),
+      docs: packages.concat([{ kind: 'mainpage', readme: resolveMarkdown(opts.readme), longname: opts.mainpagetitle ? opts.mainpagetitle : 'Main Page' }]),
       url: indexUrl
     })
   );
