@@ -1,3 +1,8 @@
+**0.2.5**
+- [fix] default show global subnavigator
+- [feat] resolve tutorial link in README.md
+
+
 **0.2.4**
 - [fix] fix bugs for classes is not rendered
 
@@ -5,6 +10,15 @@
 - [feat] add support for markdown language mermaid
 - [fix] fix template subdocumentation page didn't show nav properly
 
+
+**0.2.5**
+- [fix] bug fix for classes is not rendered
+- [fix] global page did't show navigator properly
+- []
+
+**0.2.3**
+- [feat] add support for language mermaid 2. update to version 0.2.3
+- [fix] fix template subdocumentation page didn't show nav properly
 
 **0.2.2**
 - [fix] navigator didn't show properly for tutorial
